@@ -37,6 +37,8 @@ class LIO_Ajax {
 		add_action( 'wp_ajax_lio_get_ids', array( $this, 'get_ids' ) );
 		add_action( 'wp_ajax_lio_optimize', array( $this, 'optimize' ) );
 		add_action( 'wp_ajax_lio_restore', array( $this, 'restore' ) );
+		add_action( 'wp_ajax_lio_scan_count', array( $this, 'scan_count' ) );
+		add_action( 'wp_ajax_lio_scan_batch', array( $this, 'scan_batch' ) );
 	}
 
 	/**
@@ -147,5 +149,38 @@ class LIO_Ajax {
 		}
 
 		wp_send_json_success( array( 'id' => $id ) );
+	}
+
+	/**
+	 * Count eligible files in the uploads folder (for the scan progress bar).
+	 */
+	public function scan_count() {
+		$this->guard();
+
+		$scanner = new LIO_Scanner( $this->optimizer );
+		wp_send_json_success( $scanner->count_eligible() );
+	}
+
+	/**
+	 * Process one batch of the uploads-folder WebP scan.
+	 */
+	public function scan_batch() {
+		$this->guard();
+
+		// Give the batch room, but the scanner's own wall-clock budget is the
+		// real limit so we never run away.
+		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Performance.RemoteRequestTimeout.set_time_limit
+		if ( function_exists( 'wp_raise_memory_limit' ) ) {
+			wp_raise_memory_limit( 'image' );
+		}
+
+		$cursor     = isset( $_POST['cursor'] ) ? sanitize_text_field( wp_unslash( $_POST['cursor'] ) ) : '';
+		$batch      = isset( $_POST['batch'] ) ? (int) $_POST['batch'] : 15;
+		$recompress = ! empty( $_POST['recompress'] );
+
+		$scanner = new LIO_Scanner( $this->optimizer );
+		$result  = $scanner->run_batch( $cursor, $batch, 20, $recompress );
+
+		wp_send_json_success( $result );
 	}
 }

@@ -110,7 +110,7 @@ class LIO_Optimizer {
 			'percent'      => $bytes_before > 0 ? round( ( $saved / $bytes_before ) * 100, 1 ) : 0,
 			'webp'         => $webp_made,
 			'files'        => count( $files ),
-			'time'         => current_time( 'timestamp' ),
+			'time'         => time(),
 		);
 
 		update_post_meta( $attachment_id, LIO_META, $stats );
@@ -433,5 +433,133 @@ class LIO_Optimizer {
 
 		$relative = ltrim( substr( $file, strlen( $basedir ) ), '/\\' );
 		return $basedir . LIO_BACKUP_DIR . '/' . $relative;
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Path-based entry points used by the whole-uploads folder scanner.
+	 * These let us process files that are NOT Media Library attachments
+	 * (e.g. page-builder/theme images), reusing the same validated,
+	 * palette-safe encoder as attachment optimisation.
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Absolute path to the uploads directory, with a trailing slash.
+	 *
+	 * @return string
+	 */
+	public function uploads_basedir() {
+		$uploads = wp_get_upload_dir();
+		return trailingslashit( $uploads['basedir'] );
+	}
+
+	/**
+	 * Cheap eligibility classifier for the folder scanner. Returns false when a
+	 * file should be processed, or a short string reason when it should be
+	 * skipped. Deliberately avoids realpath() so it stays fast inside a walk;
+	 * webpify_path() performs the authoritative path-safety check.
+	 *
+	 * @param string $file Absolute path.
+	 * @return false|string
+	 */
+	public function should_skip_path( $file ) {
+		$normalized = wp_normalize_path( $file );
+
+		if ( false !== strpos( $normalized, '/' . LIO_BACKUP_DIR . '/' ) ) {
+			return 'backup';
+		}
+		$ext = strtolower( pathinfo( $normalized, PATHINFO_EXTENSION ) );
+		if ( ! in_array( $ext, array( 'jpg', 'jpeg', 'png' ), true ) ) {
+			return 'not_image';
+		}
+		return false;
+	}
+
+	/**
+	 * Generate a WebP for an arbitrary file path under /uploads. Used by the
+	 * folder scanner for files that may not be Media Library attachments.
+	 *
+	 * @param string   $file         Absolute path.
+	 * @param int|null $webp_quality Optional quality override.
+	 * @return true|WP_Error
+	 */
+	public function webpify_path( $file, $webp_quality = null ) {
+		$caps = LIO_Capabilities::get();
+		if ( ! $caps['can_webp'] || ! LIO_Settings::get( 'webp_enabled' ) ) {
+			return new WP_Error( 'lio_no_webp', __( 'WebP generation is unavailable or disabled.', 'local-image-optimizer' ) );
+		}
+
+		$real = realpath( $file );
+		if ( false === $real ) {
+			return new WP_Error( 'lio_missing', __( 'File not found.', 'local-image-optimizer' ) );
+		}
+		if ( ! $this->is_under_uploads( $real ) ) {
+			return new WP_Error( 'lio_outside', __( 'File is outside the uploads directory.', 'local-image-optimizer' ) );
+		}
+		$skip = $this->should_skip_path( $real );
+		if ( false !== $skip ) {
+			return new WP_Error( 'lio_skipped', $skip );
+		}
+		if ( ! $this->is_valid_image( $real, array( IMAGETYPE_JPEG, IMAGETYPE_PNG ) ) ) {
+			return new WP_Error( 'lio_unreadable', __( 'File is not a readable JPEG or PNG.', 'local-image-optimizer' ) );
+		}
+
+		$quality = ( null === $webp_quality ) ? (int) LIO_Settings::get( 'webp_quality' ) : (int) $webp_quality;
+
+		if ( $this->make_webp( $real, $quality ) ) {
+			return true;
+		}
+		return new WP_Error( 'lio_encode_failed', __( 'No smaller, valid WebP could be created for this file.', 'local-image-optimizer' ) );
+	}
+
+	/**
+	 * Recompress an arbitrary original file under /uploads (optional scan step).
+	 *
+	 * @param string   $file         Absolute path.
+	 * @param int|null $jpeg_quality Optional quality override.
+	 * @return bool True if the original was replaced with a smaller version.
+	 */
+	public function recompress_path( $file, $jpeg_quality = null ) {
+		$real = realpath( $file );
+		if ( false === $real || ! $this->is_under_uploads( $real ) ) {
+			return false;
+		}
+		if ( false !== $this->should_skip_path( $real ) ) {
+			return false;
+		}
+		$quality = ( null === $jpeg_quality ) ? (int) LIO_Settings::get( 'jpeg_quality' ) : (int) $jpeg_quality;
+		return $this->recompress( $real, $quality );
+	}
+
+	/**
+	 * Does a fresh, valid WebP already exist for this file? Mirrors the reuse
+	 * condition inside make_webp(), so the scanner can report "already up to
+	 * date" rather than counting it as a new conversion.
+	 *
+	 * @param string $file Absolute path.
+	 * @return bool
+	 */
+	public function has_fresh_webp( $file ) {
+		$webp = $file . '.webp';
+		return file_exists( $webp )
+			&& file_exists( $file )
+			&& filemtime( $webp ) >= filemtime( $file )
+			&& $this->is_valid_image( $webp, array( IMAGETYPE_WEBP ) );
+	}
+
+	/**
+	 * Is an absolute path genuinely inside the uploads directory?
+	 * realpath-based, so it also defeats symlink escapes and traversal.
+	 *
+	 * @param string $file Absolute path (ideally already realpath()'d).
+	 * @return bool
+	 */
+	private function is_under_uploads( $file ) {
+		$base = realpath( $this->uploads_basedir() );
+		if ( false === $base ) {
+			return false;
+		}
+		$base = trailingslashit( wp_normalize_path( $base ) );
+		$path = wp_normalize_path( $file );
+		return 0 === strpos( $path, $base );
 	}
 }

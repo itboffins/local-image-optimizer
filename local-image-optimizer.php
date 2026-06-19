@@ -3,7 +3,7 @@
  * Plugin Name:       Local Image Optimiser
  * Plugin URI:        https://itboffins.com/plugins/local-image-optimizer/
  * Description:       Compress your images and serve next-gen WebP using only the image tools already on your server (GD or Imagick). No external API, no account, no shell access required — works on any WordPress host.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Requires at least: 5.8
  * Requires PHP:      7.2
  * Author:            IT Boffins
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'LIO_VERSION', '1.0.2' );
+define( 'LIO_VERSION', '1.0.3' );
 define( 'LIO_FILE', __FILE__ );
 define( 'LIO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LIO_URL', plugin_dir_url( __FILE__ ) );
@@ -37,6 +37,7 @@ define( 'LIO_BACKUP_DIR', 'lio-originals' );
 require_once LIO_DIR . 'includes/class-lio-settings.php';
 require_once LIO_DIR . 'includes/class-lio-capabilities.php';
 require_once LIO_DIR . 'includes/class-lio-optimizer.php';
+require_once LIO_DIR . 'includes/class-lio-scanner.php';
 require_once LIO_DIR . 'includes/class-lio-frontend.php';
 require_once LIO_DIR . 'includes/class-lio-admin.php';
 require_once LIO_DIR . 'includes/class-lio-ajax.php';

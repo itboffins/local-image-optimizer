@@ -224,8 +224,173 @@
 		} );
 	}
 
+	/* ---------------------------------------------------------------------
+	 * Uploads-folder scan (whole /uploads, including non-library files)
+	 * ------------------------------------------------------------------ */
+	function initScan() {
+		var startBtn = document.getElementById( 'lio-scan-start' );
+		if ( ! startBtn ) {
+			return;
+		}
+
+		var stopBtn = document.getElementById( 'lio-scan-stop' );
+		var progress = document.getElementById( 'lio-scan-progress' );
+		var barFill = document.getElementById( 'lio-scan-bar-fill' );
+		var currentEl = document.getElementById( 'lio-scan-current' );
+		var textEl = document.getElementById( 'lio-scan-text' );
+		var tallyEl = document.getElementById( 'lio-scan-savings' );
+		var logEl = document.getElementById( 'lio-scan-log' );
+		var recompressEl = document.getElementById( 'lio-scan-recompress' );
+
+		var cursor = '';
+		var total = null;
+		var processed = 0;
+		var made = 0;
+		var skipped = 0;
+		var recompressed = 0;
+		var stopped = false;
+		var fails = 0;
+		var stalls = 0;
+
+		function log( msg, cls ) {
+			var line = document.createElement( 'div' );
+			if ( cls ) {
+				line.className = cls;
+			}
+			line.textContent = msg;
+			logEl.appendChild( line );
+			logEl.scrollTop = logEl.scrollHeight;
+		}
+
+		function update() {
+			if ( total ) {
+				var pct = Math.min( 100, Math.round( ( processed / total ) * 100 ) );
+				barFill.style.width = pct + '%';
+				barFill.classList.remove( 'lio-indeterminate' );
+				textEl.textContent = processed + ' / ' + total + ' (' + pct + '%)';
+			} else {
+				barFill.style.width = '100%';
+				barFill.classList.add( 'lio-indeterminate' );
+				textEl.textContent = processed + ' ' + ( i18n.scanned || 'scanned' );
+			}
+			var t = made + ' ' + ( i18n.createdWord || 'WebP created' ) +
+				' · ' + skipped + ' ' + ( i18n.skippedWord || 'skipped' );
+			if ( recompressEl && recompressEl.checked ) {
+				t += ' · ' + recompressed + ' ' + ( i18n.recompressedWord || 'recompressed' );
+			}
+			tallyEl.textContent = t;
+		}
+
+		function finish() {
+			startBtn.disabled = false;
+			stopBtn.style.display = 'none';
+			currentEl.textContent = '';
+			barFill.classList.remove( 'lio-indeterminate' );
+			log( i18n.scanDone || 'Scan complete.', 'ok' );
+		}
+
+		function batch() {
+			if ( stopped ) {
+				finish();
+				return;
+			}
+			var startCursor = cursor;
+			post( 'lio_scan_batch', {
+				cursor: cursor,
+				batch: 40,
+				recompress: ( recompressEl && recompressEl.checked ) ? 1 : 0
+			} ).then( function ( res ) {
+				if ( ! res || ! res.success ) {
+					// A bad file is recorded server-side and skipped on retry.
+					fails++;
+					if ( fails > 4 ) {
+						log( i18n.scanFailed || 'Scan stopped after repeated errors.', 'err' );
+						finish();
+						return;
+					}
+					batch();
+					return;
+				}
+				fails = 0;
+				var d = res.data;
+				cursor = d.cursor;
+				processed += d.processed;
+				made += d.made;
+				skipped += d.skipped;
+				recompressed += d.recompressed || 0;
+
+				( d.items || [] ).forEach( function ( it ) {
+					if ( it.made ) {
+						log( it.name + ' ✓', 'ok' );
+					} else {
+						log( it.name + ' — ' + ( it.reason || 'skipped' ) );
+					}
+				} );
+
+				currentEl.textContent = cursor ? ( ( i18n.scanning || 'Scanning…' ) + ' ' + cursor ) : '';
+				update();
+
+				// No forward progress (cursor didn't move) — on a very large tree
+				// the resume re-walk alone can exhaust the budget. Stop gracefully
+				// instead of looping forever; WebP already created are kept.
+				if ( ! d.done && d.cursor === startCursor ) {
+					stalls++;
+					if ( stalls >= 2 ) {
+						log( i18n.scanFailed || 'Scan stopped after repeated errors.', 'err' );
+						finish();
+						return;
+					}
+				} else {
+					stalls = 0;
+				}
+
+				if ( d.done ) {
+					finish();
+				} else {
+					batch();
+				}
+			} ).catch( function () {
+				fails++;
+				if ( fails > 4 ) {
+					log( i18n.scanFailed || 'Scan stopped after repeated errors.', 'err' );
+					finish();
+					return;
+				}
+				batch();
+			} );
+		}
+
+		startBtn.addEventListener( 'click', function () {
+			startBtn.disabled = true;
+			stopped = false;
+			cursor = '';
+			processed = 0;
+			made = 0;
+			skipped = 0;
+			recompressed = 0;
+			fails = 0;
+			stalls = 0;
+			progress.style.display = 'block';
+			logEl.style.display = 'block';
+			stopBtn.style.display = '';
+			currentEl.textContent = i18n.scanning || 'Scanning…';
+
+			post( 'lio_scan_count', {} ).then( function ( res ) {
+				total = ( res && res.success && res.data.total ) ? res.data.total : null;
+				update();
+				batch();
+			} );
+		} );
+
+		stopBtn.addEventListener( 'click', function () {
+			stopped = true;
+			stopBtn.style.display = 'none';
+		} );
+	}
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initBulk();
+		initScan();
 		initMediaButtons();
 	} );
 } )();

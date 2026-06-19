@@ -104,6 +104,9 @@ class LIO_Admin {
 			return;
 		}
 
+		// No remote assets: the brand look is carried by the CSS, and the font
+		// stacks fall back to system fonts (keeping the plugin's "nothing leaves
+		// your server" privacy promise and WordPress.org asset guidelines).
 		wp_enqueue_style( 'lio-admin', LIO_URL . 'assets/admin.css', array(), LIO_VERSION );
 		wp_enqueue_script( 'lio-admin', LIO_URL . 'assets/admin.js', array(), LIO_VERSION, true );
 
@@ -126,6 +129,13 @@ class LIO_Admin {
 					'webpCreated'    => __( 'WebP created', 'local-image-optimizer' ),
 					'noImages'       => __( 'No images found to optimise.', 'local-image-optimizer' ),
 					'confirmRestore' => __( 'Restore the original, un-optimised image? This will undo the compression for this item.', 'local-image-optimizer' ),
+					'scanning'       => __( 'Scanning…', 'local-image-optimizer' ),
+					'scanDone'       => __( 'Scan complete.', 'local-image-optimizer' ),
+					'scanFailed'     => __( 'Scan stopped after repeated errors.', 'local-image-optimizer' ),
+					'scanned'        => __( 'scanned', 'local-image-optimizer' ),
+					'createdWord'    => __( 'WebP created', 'local-image-optimizer' ),
+					'skippedWord'    => __( 'skipped', 'local-image-optimizer' ),
+					'recompressedWord' => __( 'recompressed', 'local-image-optimizer' ),
 				),
 			)
 		);
@@ -142,6 +152,7 @@ class LIO_Admin {
 		$settings = LIO_Settings::all();
 		?>
 		<div class="wrap lio-wrap">
+			<?php $this->brand_header(); ?>
 			<h1><?php esc_html_e( 'Local Image Optimiser', 'local-image-optimizer' ); ?></h1>
 
 			<div class="lio-card">
@@ -253,7 +264,15 @@ class LIO_Admin {
 					);
 					?>
 				</p>
-				<p><?php printf( esc_html__( 'More free plugins at %s', 'local-image-optimizer' ), '<a href="https://itboffins.com/" target="_blank" rel="noopener">itboffins.com</a>' ); ?></p>
+				<p>
+					<?php
+					printf(
+						/* translators: %s: link to itboffins.com */
+						esc_html__( 'More free plugins at %s', 'local-image-optimizer' ),
+						'<a href="https://itboffins.com/" target="_blank" rel="noopener">itboffins.com</a>'
+					);
+					?>
+				</p>
 			</div>
 		</div>
 		<?php
@@ -269,6 +288,7 @@ class LIO_Admin {
 		$caps = LIO_Capabilities::get();
 		?>
 		<div class="wrap lio-wrap">
+			<?php $this->brand_header(); ?>
 			<h1><?php esc_html_e( 'Bulk Image Optimiser', 'local-image-optimizer' ); ?></h1>
 
 			<?php if ( ! $caps['can_compress'] ) : ?>
@@ -290,6 +310,33 @@ class LIO_Admin {
 					</div>
 
 					<div id="lio-log" class="lio-log" style="display:none;"></div>
+				</div>
+
+				<div class="lio-card">
+					<span class="lio-eyebrow"><?php esc_html_e( 'Advanced', 'local-image-optimizer' ); ?></span>
+					<h2><?php esc_html_e( 'Scan entire uploads folder', 'local-image-optimizer' ); ?></h2>
+					<p><?php esc_html_e( 'Generates WebP for every JPEG and PNG in your uploads folder — including images added by page builders (Elementor, Divi) or your theme that are not in the Media Library. Files that already have an up-to-date WebP are skipped.', 'local-image-optimizer' ); ?></p>
+
+					<p>
+						<label>
+							<input type="checkbox" id="lio-scan-recompress" />
+							<?php esc_html_e( 'Also recompress the original JPEGs while scanning', 'local-image-optimizer' ); ?>
+						</label>
+					</p>
+
+					<p>
+						<button type="button" class="button button-primary button-hero" id="lio-scan-start"><?php esc_html_e( 'Scan uploads folder', 'local-image-optimizer' ); ?></button>
+						<button type="button" class="button" id="lio-scan-stop" style="display:none;"><?php esc_html_e( 'Stop', 'local-image-optimizer' ); ?></button>
+					</p>
+
+					<div id="lio-scan-progress" class="lio-progress" style="display:none;">
+						<div class="lio-bar"><span id="lio-scan-bar-fill"></span></div>
+						<p id="lio-scan-current" class="lio-current"></p>
+						<p id="lio-scan-text"></p>
+						<p id="lio-scan-savings" class="lio-savings"></p>
+					</div>
+
+					<div id="lio-scan-log" class="lio-log" style="display:none;"></div>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -341,6 +388,46 @@ class LIO_Admin {
 
 		echo '<span class="lio-msg"></span>';
 		echo '</div>';
+	}
+
+	/**
+	 * Output the IT Boffins branded header bar.
+	 */
+	private function brand_header() {
+		?>
+		<div class="lio-brandbar">
+			<span class="lio-logo">
+				<?php
+				// Trusted, static, internally-defined SVG markup.
+				echo $this->logo_svg(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+			</span>
+			<span class="lio-brandbar-side">
+				<span class="lio-eyebrow"><?php esc_html_e( 'Free plugin', 'local-image-optimizer' ); ?></span>
+				<span class="lio-ver">v<?php echo esc_html( LIO_VERSION ); ?></span>
+			</span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The IT Boffins flask-wordmark, static (animation stripped) with the flask
+	 * liquid tinted brand green. Fill is currentColor so CSS controls the rest.
+	 *
+	 * @return string
+	 */
+	private function logo_svg() {
+		return '<svg class="lio-logo-svg" viewBox="0 0 497 99" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IT Boffins" fill="currentColor">'
+			. '<path d="M345.31,10.31c5.21-2.38,10.84-.54,12.7,4.57,1.43,3.92.46,9.48-4.49,11.55-3.93,1.64-9.53.85-12.01-4.07-1.76-3.49-1.28-9.73,3.8-12.04Z"/>'
+			. '<path d="M342.51,45.38l-22.88-.03v44.63s-14.37,0-14.37,0v-44.62s-22.76,0-22.76,0v44.63s-14.36-.02-14.36-.02l.02-44.6-14.22-.03.03-11.72,14.48-.26c-.5-7.91-1.71-17.11,5.37-21.07,6.36-3.56,14.35-1.59,21.67-1.95l-.16,12.04c-4.37-.25-9.21-.78-11.56.49-2.18,1.17-1.24,7.2-1.15,10.62h22.97c-.53-7.79-1.68-16.43,4.71-20.77,6.01-4.09,13.98-2.03,21.2-2.36l-.17,12.02c-3.87-.26-8.59-.73-10.46.54-2.02,1.38-1.22,6.97-1.16,10.55l37.03.07v56.43s-14.24.03-14.24.03l.02-44.61Z"/>'
+			. '<g><path d="M387.45,57.26l-.39,32.71-14.28-.02v-56.28s13.73-.24,13.73-.24l1.06,8.67c6.69-9.43,14.54-10.86,24.39-8.39,8.26,2.07,15.18,10.52,15.24,20.29l.21,35.96h-14.25c-.2-12.69.57-24.86-.67-37.21-.68-6.77-8.62-8.69-13.87-7.93-5.6.81-11.08,5.37-11.17,12.44Z"/>'
+			. '<path d="M472.84,91.09c-14.41,2-29.69-2-33.12-17.69l13.17-3.6c1.71,8.97,9.39,11.74,17.65,10.06,2.71-.55,5.48-2.77,5.64-5.35s-2.38-5.07-5.2-5.79l-17.43-4.47c-8.27-2.12-12.61-9.67-11.52-17.68,1.07-7.86,8-13.02,16.35-14.12,12.19-1.6,24.62,1.27,29.63,14.47l-13.27,4.41c-1.49-6-5.06-7.64-9.93-8.02-3.91-.3-11.34,1.57-8.32,7.56,3.47,6.88,33.92,2.48,33.57,22.6-.16,9.38-7.12,16.21-17.21,17.61Z"/></g>'
+			. '<g><polygon points="74.88 90.97 59.9 91.09 59.91 25 36.63 25 36.85 11.41 97.94 11.4 98.12 25.01 74.85 24.99 74.88 90.97"/>'
+			. '<rect x="11.33" y="11.38" width="15" height="79.79"/></g>'
+			. '<g><path d="M184.5,60.71c.19,10.94-3.14,20.95-11.73,26.5s-21.01,6.58-28.44-.8l-2.53-2.51c-.75-.75-2.85-1.03-2.81-.11l.29,6.07-14.27.12V10.56c4.99-.24,9.04-.21,14.25-.01l.2,30.78c8.5-10.08,19.28-11.48,29.97-6.94,9.87,4.2,14.87,14.92,15.07,26.32ZM170.28,60.48c-.45-10.6-7.42-16.84-17.18-16.08-9.09.71-14.25,8.13-14.18,17.59.08,10.06,6.31,17.42,16.12,17.1,9.85-.32,15.7-7.89,15.24-18.61Z"/>'
+			. '<g><path d="M226.43,32.78c9.36,2.61,15.75,9.17,19.08,16.18,4.58,9.64,3.33,18.75-1.28,28.13-5.92,12.06-20.6,17.48-33.71,13.87-12.66-3.49-22.07-14.59-22.66-28.52s7.46-25.61,21.26-29.79c.55-9.86.87-19.09-.75-28.66l19.37.12c-1.72,10.19-1.21,18.35-1.31,28.68ZM224.49,33.9l-.11-27.78h-12.67s.14,28.14.14,28.14c-16.5,4.29-26.22,21.44-20.83,36.65s22.72,23.88,38.22,16.74c11.48-5.29,18.58-16.64,17.22-28.93s-9.4-22.05-21.96-24.82Z"/>'
+			. '<path fill="#00B86B" d="M195.43,49.09c12.39,4.47,29.48.78,47.55,4.75,3.72,11.33-1.09,23.83-11,30.09-9.76,6.17-22.79,4.99-31.3-2.69-8.9-8.03-11.4-20.94-5.25-32.15Z"/></g></g>'
+			. '</svg>';
 	}
 
 	/**

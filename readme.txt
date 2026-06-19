@@ -4,7 +4,7 @@ Tags: image optimisation, compress images, webp, performance, page speed
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ Unlike most image plugins, there is **no external service**, no API key, no mont
 
 * **Compress on upload** — every new JPEG and PNG is optimised automatically.
 * **Bulk optimise** — compress your entire existing Media Library with a one-click batch tool that runs in the background and shows you each file as it works.
+* **Scan entire uploads folder** — generate WebP for *every* JPEG/PNG in your uploads folder, including page-builder and theme images that are not in the Media Library.
 * **WebP conversion** — generates WebP copies of your images (where your server supports it).
 * **Automatic WebP delivery** — serves WebP to browsers that support it using the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS without any server config or `.htaccess` edits. Browsers that don't support WebP get the original automatically.
 * **Works with page builders** — an optional whole-page mode rewrites every image on the page, including those added by Elementor, Divi and theme templates.
@@ -59,6 +60,10 @@ Your server's image library was compiled without WebP support. The plugin will s
 
 By default the plugin rewrites images that pass through WordPress's normal content and featured-image filters. Images added by a **page builder** (Elementor, Divi, etc.) or printed directly by your theme don't pass through those filters. Turn on **Settings → Image Optimiser → Rewrite images everywhere** to catch them. Note that images set as **CSS backgrounds** cannot use the `<picture>` element and so cannot be converted this way.
 
+= Some images don't have a WebP version at all =
+
+The bulk optimiser only processes images in your **Media Library**. Page-builder template images and theme images often live in your uploads folder without being Library attachments, so they never get a WebP. Use **Media → Bulk Optimise → Scan entire uploads folder** to generate WebP for every image file on disk, Library or not.
+
 = Will this break my images if the quality is too low? =
 
 You can set the JPEG and WebP quality on the settings page. The default (82 / 80) is visually lossless for most photos. The plugin also keeps a backup of every original (unless you turn that off), so you can restore any image with one click.
@@ -79,6 +84,11 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 == Changelog ==
 
+= 1.0.3 =
+* New: **Scan entire uploads folder** — generate WebP for every JPEG/PNG on disk, including page-builder (Elementor/Divi) and theme images that are not in the Media Library. Memory-safe, resumable, and skips the originals backup folder.
+* New: redesigned admin screens with IT Boffins branding.
+* The folder scan reuses the same validated, palette-safe WebP encoder, so it can also repair previously broken WebP files.
+
 = 1.0.2 =
 * New: optional **Rewrite images everywhere** mode (whole-page output buffering) so WebP is served for images added by page builders (Elementor, Divi) and theme templates, not just post content.
 * Fixed: WebP files that exist on disk were not served when a page linked images with a different www/non-www or http/https prefix. Delivery now matches on the URL path, so those variants resolve correctly.
@@ -94,6 +104,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Adds a whole-uploads-folder WebP scanner (catches page-builder/theme images) and a branded admin redesign.
 
 = 1.0.2 =
 Adds a page-builder (Elementor/Divi) compatibility mode and fixes WebP not serving on www/non-www URL mismatches. Recommended for all users.

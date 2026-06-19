@@ -22,6 +22,7 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 | --- | --- |
 | Compress on upload | New JPEG/PNG uploads optimised automatically |
 | Bulk optimiser | Batch-compress your whole Media Library (AJAX, runs in background, shows each filename as it works) |
+| Scan uploads folder | Generate WebP for *every* JPEG/PNG on disk — including page-builder/theme images not in the Media Library (memory-safe, resumable) |
 | WebP generation | Creates `image.jpg.webp` siblings where the server supports WebP |
 | Auto WebP delivery | Wraps `<img>` in `<picture>` with a WebP `<source>` + original fallback |
 | Whole-page mode | Optional output buffering rewrites every image, including page-builder and theme output |
@@ -64,7 +65,8 @@ local-image-optimizer/
 ├── includes/
 │   ├── class-lio-settings.php       # options + defaults
 │   ├── class-lio-capabilities.php   # runtime server probe
-│   ├── class-lio-optimizer.php      # compress / webp / backup / restore
+│   ├── class-lio-optimizer.php      # compress / webp / backup / restore + path-based API
+│   ├── class-lio-scanner.php        # memory-safe recursive /uploads WebP scanner
 │   ├── class-lio-frontend.php       # <picture> delivery (+ whole-page mode)
 │   ├── class-lio-admin.php          # settings + bulk + media column
 │   └── class-lio-ajax.php           # AJAX endpoints
