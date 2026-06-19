@@ -7,6 +7,12 @@
  * Apache, Nginx, LiteSpeed, IIS — any server — and browsers that do not support
  * WebP simply fall back to the original <img>.
  *
+ * Two modes:
+ *  - Content mode (default): hooks the usual content/thumbnail filters.
+ *  - Whole-page mode (opt-in): buffers the entire page output and rewrites every
+ *    <img>, which also catches images output by page builders (Elementor, Divi)
+ *    and theme templates that never pass through the content filters.
+ *
  * @package Local_Image_Optimizer
  */
 
@@ -20,18 +26,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 class LIO_Frontend {
 
 	/**
-	 * Uploads base URL (scheme-normalised).
+	 * Uploads base URL, e.g. https://www.example.com/wp-content/uploads.
 	 *
 	 * @var string
 	 */
 	private $base_url = '';
 
 	/**
-	 * Uploads base directory.
+	 * Uploads base directory (with trailing slash).
 	 *
 	 * @var string
 	 */
 	private $base_dir = '';
+
+	/**
+	 * Path component of the uploads URL, e.g. /wp-content/uploads.
+	 *
+	 * Matching on the path (instead of the full URL) makes delivery tolerant of
+	 * www vs non-www and http vs https mismatches — a common reason WebP files
+	 * that exist on disk were not being served.
+	 *
+	 * @var string
+	 */
+	private $base_path = '';
 
 	/**
 	 * Register output filters.
@@ -42,13 +59,34 @@ class LIO_Frontend {
 		}
 
 		$uploads        = wp_get_upload_dir();
-		$this->base_url = set_url_scheme( $uploads['baseurl'] );
+		$this->base_url = untrailingslashit( $uploads['baseurl'] );
 		$this->base_dir = trailingslashit( $uploads['basedir'] );
+		$this->base_path = (string) wp_parse_url( $this->base_url, PHP_URL_PATH );
 
-		add_filter( 'the_content', array( $this, 'filter_html' ), 20 );
-		add_filter( 'post_thumbnail_html', array( $this, 'filter_html' ), 20 );
-		add_filter( 'wp_get_attachment_image', array( $this, 'filter_html' ), 20 );
-		add_filter( 'widget_text', array( $this, 'filter_html' ), 20 );
+		if ( '' === $this->base_path ) {
+			return;
+		}
+
+		if ( LIO_Settings::get( 'full_page_webp' ) ) {
+			// Whole-page mode: buffer the full response and rewrite everything.
+			add_action( 'template_redirect', array( $this, 'start_buffer' ), 1 );
+		} else {
+			// Content mode: just the standard image-bearing filters.
+			add_filter( 'the_content', array( $this, 'filter_html' ), 20 );
+			add_filter( 'post_thumbnail_html', array( $this, 'filter_html' ), 20 );
+			add_filter( 'wp_get_attachment_image', array( $this, 'filter_html' ), 20 );
+			add_filter( 'widget_text', array( $this, 'filter_html' ), 20 );
+		}
+	}
+
+	/**
+	 * Begin buffering the whole page (whole-page mode only).
+	 */
+	public function start_buffer() {
+		if ( is_feed() || is_embed() || is_preview() ) {
+			return;
+		}
+		ob_start( array( $this, 'filter_html' ) );
 	}
 
 	/**
@@ -58,7 +96,7 @@ class LIO_Frontend {
 	 * @return string
 	 */
 	public function filter_html( $html ) {
-		if ( '' === $html || is_feed() || false === strpos( $html, '<img' ) ) {
+		if ( ! is_string( $html ) || '' === $html || is_feed() || false === stripos( $html, '<img' ) ) {
 			return $html;
 		}
 		return preg_replace_callback( '/<img\b[^>]*>/i', array( $this, 'replace_img' ), $html );
@@ -129,33 +167,49 @@ class LIO_Frontend {
 	}
 
 	/**
-	 * Return the WebP URL for an image URL if the file exists, else ''.
+	 * Return a canonical WebP URL for an image URL if the .webp exists, else ''.
 	 *
 	 * @param string $url Image URL.
 	 * @return string
 	 */
 	private function webp_url( $url ) {
-		$path = $this->url_to_path( $url );
-		if ( '' !== $path && file_exists( $path . '.webp' ) ) {
-			return $url . '.webp';
+		$relative = $this->relative_uploads_path( $url );
+		if ( null === $relative ) {
+			return '';
+		}
+		if ( file_exists( $this->base_dir . $relative . '.webp' ) ) {
+			// Rebuild from the canonical uploads URL so www/scheme always match.
+			return $this->base_url . '/' . $relative . '.webp';
 		}
 		return '';
 	}
 
 	/**
-	 * Map an uploads URL to an absolute path, or '' if it is not local.
+	 * Map an image URL to its path relative to the uploads dir, or null if the
+	 * URL is not a local upload. Matches on the path only, so www/non-www and
+	 * http/https variants all resolve correctly.
 	 *
 	 * @param string $url Image URL.
-	 * @return string
+	 * @return string|null
 	 */
-	private function url_to_path( $url ) {
-		$url = preg_replace( '/[?#].*$/', '', $url );
-		$url = set_url_scheme( $url );
-
-		if ( 0 !== strpos( $url, $this->base_url ) ) {
-			return '';
+	private function relative_uploads_path( $url ) {
+		$url  = preg_replace( '/[?#].*$/', '', $url );
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		if ( '' === $path ) {
+			return null;
 		}
-		$relative = ltrim( substr( $url, strlen( $this->base_url ) ), '/' );
-		return $this->base_dir . $relative;
+
+		$pos = strpos( $path, $this->base_path );
+		if ( false === $pos ) {
+			return null;
+		}
+
+		$relative = ltrim( substr( $path, $pos + strlen( $this->base_path ) ), '/' );
+		if ( '' === $relative ) {
+			return null;
+		}
+
+		// Decode for the filesystem check; WordPress stores ASCII-safe names.
+		return rawurldecode( $relative );
 	}
 }

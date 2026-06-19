@@ -1,4 +1,4 @@
-/* Local Image Optimizer — admin JS (vanilla, no jQuery dependency) */
+/* Local Image Optimiser — admin JS (vanilla, no jQuery dependency) */
 ( function () {
 	'use strict';
 
@@ -34,8 +34,12 @@
 		return ( bytes / Math.pow( 1024, i ) ).toFixed( 1 ) + ' ' + units[ i ];
 	}
 
+	function sprintf1( template, value ) {
+		return String( template ).replace( '%d', value ).replace( '%s', value );
+	}
+
 	/* ---------------------------------------------------------------------
-	 * Bulk optimizer screen
+	 * Bulk optimiser screen
 	 * ------------------------------------------------------------------ */
 	function initBulk() {
 		var startBtn = document.getElementById( 'lio-bulk-start' );
@@ -46,6 +50,7 @@
 		var stopBtn = document.getElementById( 'lio-bulk-stop' );
 		var progress = document.getElementById( 'lio-progress' );
 		var barFill = document.getElementById( 'lio-bar-fill' );
+		var currentEl = document.getElementById( 'lio-current' );
 		var progressText = document.getElementById( 'lio-progress-text' );
 		var savingsEl = document.getElementById( 'lio-savings' );
 		var logEl = document.getElementById( 'lio-log' );
@@ -72,13 +77,15 @@
 			barFill.style.width = pct + '%';
 			progressText.textContent = done + ' / ' + total + ' (' + pct + '%)';
 			savingsEl.textContent =
-				humanBytes( totalSaved ) + ' saved · ' + totalWebp + ' WebP created';
+				humanBytes( totalSaved ) + ' ' + ( i18n.saved || 'saved' ) +
+				' · ' + totalWebp + ' ' + ( i18n.webpCreated || 'WebP created' );
 		}
 
 		function finish() {
 			startBtn.disabled = false;
 			startBtn.style.display = '';
 			stopBtn.style.display = 'none';
+			currentEl.textContent = '';
 			log( i18n.done || 'All done!', 'ok' );
 		}
 
@@ -87,28 +94,33 @@
 				finish();
 				return;
 			}
-			var id = queue.shift();
-			post( 'lio_optimize', { id: id } )
+			var item = queue.shift();
+			var name = item.name || ( '#' + item.id );
+
+			// Show the filename currently being optimised.
+			currentEl.textContent = ( i18n.optimising || 'Optimising…' ) + ' ' + name;
+
+			post( 'lio_optimize', { id: item.id } )
 				.then( function ( res ) {
 					done++;
 					if ( res && res.success ) {
 						totalSaved += res.data.saved || 0;
 						totalWebp += res.data.webp || 0;
 						log(
-							'#' + res.data.id + ' ✓ ' + res.data.human +
+							( res.data.name || name ) + ' ✓ ' + res.data.human +
 								' (' + res.data.percent + '%)',
 							'ok'
 						);
 					} else {
 						var m = res && res.data ? res.data.message : 'error';
-						log( '#' + id + ' ✗ ' + m, 'err' );
+						log( name + ' ✗ ' + m, 'err' );
 					}
 					update();
 					next();
 				} )
 				.catch( function () {
 					done++;
-					log( '#' + id + ' ✗ request failed', 'err' );
+					log( name + ' ✗ request failed', 'err' );
 					update();
 					next();
 				} );
@@ -120,21 +132,22 @@
 			logEl.style.display = 'block';
 			progress.style.display = 'block';
 			stopBtn.style.display = '';
-			log( 'Fetching image list…' );
+			currentEl.textContent = i18n.fetching || 'Fetching image list…';
 
 			post( 'lio_get_ids', {} ).then( function ( res ) {
 				if ( ! res || ! res.success || ! res.data.total ) {
+					currentEl.textContent = '';
 					log( i18n.noImages || 'No images found.', 'err' );
 					finish();
 					return;
 				}
-				queue = res.data.ids;
+				queue = res.data.items;
 				total = res.data.total;
 				done = 0;
 				totalSaved = 0;
 				totalWebp = 0;
 				update();
-				log( 'Found ' + total + ' images.' );
+				log( sprintf1( i18n.found || 'Found %d images.', total ) );
 				next();
 			} );
 		} );
@@ -155,7 +168,7 @@
 
 			if ( optBtn ) {
 				e.preventDefault();
-				handleSingle( optBtn, 'lio_optimize', i18n.optimizing );
+				handleSingle( optBtn, 'lio_optimize', i18n.optimising );
 			} else if ( resBtn ) {
 				e.preventDefault();
 				if ( ! window.confirm( i18n.confirmRestore || 'Restore original?' ) ) {
@@ -183,7 +196,7 @@
 					msg.className = 'lio-msg ok';
 					if ( action === 'lio_optimize' ) {
 						msg.textContent =
-							( i18n.optimized || 'Optimized' ) +
+							( i18n.optimised || 'Optimised' ) +
 							' · ' + res.data.human + ' (' + res.data.percent + '%)';
 					} else {
 						msg.textContent = i18n.restored || 'Restored';

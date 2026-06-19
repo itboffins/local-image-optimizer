@@ -1,10 +1,10 @@
-=== Local Image Optimizer ===
+=== Local Image Optimiser ===
 Contributors: itboffins
-Tags: image optimization, compress images, webp, performance, page speed
+Tags: image optimisation, compress images, webp, performance, page speed
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,16 +12,17 @@ Compress your images and serve next-gen WebP using only the tools already on you
 
 == Description ==
 
-**Local Image Optimizer** makes your WordPress site faster by compressing your images and serving modern WebP versions — using only the image libraries already installed on your server (GD or Imagick).
+**Local Image Optimiser** makes your WordPress site faster by compressing your images and serving modern WebP versions — using only the image libraries already installed on your server (GD or Imagick).
 
 Unlike most image plugins, there is **no external service**, no API key, no monthly quota, and no account to create. Your images never leave your server. Because it relies only on PHP's built-in image tools, it works on practically **any WordPress host**, including cheap shared hosting where shell access is disabled.
 
 = What it does =
 
-* **Compress on upload** — every new JPEG and PNG is optimized automatically.
-* **Bulk optimize** — compress your entire existing Media Library with a one-click batch tool that runs in the background.
+* **Compress on upload** — every new JPEG and PNG is optimised automatically.
+* **Bulk optimise** — compress your entire existing Media Library with a one-click batch tool that runs in the background and shows you each file as it works.
 * **WebP conversion** — generates WebP copies of your images (where your server supports it).
 * **Automatic WebP delivery** — serves WebP to browsers that support it using the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS without any server config or `.htaccess` edits. Browsers that don't support WebP get the original automatically.
+* **Works with page builders** — an optional whole-page mode rewrites every image on the page, including those added by Elementor, Divi and theme templates.
 * **Safe & reversible** — keeps an untouched backup of every original so you can restore it with one click.
 * **Honest about your server** — a settings panel shows exactly what your host can do (GD, Imagick, WebP support) so there are no surprises.
 
@@ -41,8 +42,8 @@ This plugin does not send your images or any data to any external service. All p
 
 1. Upload the `local-image-optimizer` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
 2. Activate the plugin.
-3. Go to **Settings → Image Optimizer** to review your server's capabilities and adjust quality settings.
-4. New uploads are optimized automatically. To compress existing images, go to **Media → Bulk Optimize**.
+3. Go to **Settings → Image Optimiser** to review your server's capabilities and adjust quality settings.
+4. New uploads are optimised automatically. To compress existing images, go to **Media → Bulk Optimise**.
 
 == Frequently Asked Questions ==
 
@@ -53,6 +54,10 @@ No. All compression and WebP conversion happens on your own server using PHP's G
 = My server says WebP is "Not available". What does that mean? =
 
 Your server's image library was compiled without WebP support. The plugin will still compress your JPEGs and PNGs — it just won't be able to generate WebP files until your host enables WebP in GD or Imagick. Ask your host, or contact us.
+
+= Some of my images still load as JPEG/PNG. Why? =
+
+By default the plugin rewrites images that pass through WordPress's normal content and featured-image filters. Images added by a **page builder** (Elementor, Divi, etc.) or printed directly by your theme don't pass through those filters. Turn on **Settings → Image Optimiser → Rewrite images everywhere** to catch them. Note that images set as **CSS backgrounds** cannot use the `<picture>` element and so cannot be converted this way.
 
 = Will this break my images if the quality is too low? =
 
@@ -69,20 +74,32 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 == Screenshots ==
 
 1. Settings page showing your server's image capabilities.
-2. The bulk optimizer compressing the Media Library.
-3. The Optimizer column in the Media Library.
+2. The bulk optimiser compressing the Media Library.
+3. The Optimiser column in the Media Library.
 
 == Changelog ==
 
+= 1.0.2 =
+* New: optional **Rewrite images everywhere** mode (whole-page output buffering) so WebP is served for images added by page builders (Elementor, Divi) and theme templates, not just post content.
+* Fixed: WebP files that exist on disk were not served when a page linked images with a different www/non-www or http/https prefix. Delivery now matches on the URL path, so those variants resolve correctly.
+* Improved: the bulk optimiser now shows the filename of each image as it is processed, instead of just a running count.
+* Language: interface now uses British English spelling throughout.
+
 = 1.0.1 =
 * Fixed: broken images (e.g. logos) caused by corrupt WebP generated from indexed/palette PNGs on some servers. WebP output is now validated and re-encoded via a palette-safe GD path; a WebP is only ever served if it decodes correctly.
-* Fixed: re-running the optimizer now repairs or removes previously broken WebP files instead of skipping them.
+* Fixed: re-running the optimiser now repairs or removes previously broken WebP files instead of skipping them.
 * Hardened: a re-compressed image is validated before it can replace the original, so a faulty encode can never corrupt your originals.
 
 = 1.0.0 =
-* Initial release: compress on upload, bulk optimizer, WebP generation, automatic `<picture>` delivery, originals backup & restore.
+* Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Adds a page-builder (Elementor/Divi) compatibility mode and fixes WebP not serving on www/non-www URL mismatches. Recommended for all users.
+
+= 1.0.1 =
+Fixes broken images caused by corrupt WebP on some servers. Recommended for all users.
 
 = 1.0.0 =
 First release.

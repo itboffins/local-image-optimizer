@@ -69,10 +69,21 @@ class LIO_Ajax {
 			)
 		);
 
+		// Return the filename alongside each ID so the progress window can show
+		// which file is being optimised rather than just a running count.
+		$items = array();
+		foreach ( $ids as $id ) {
+			$file    = get_attached_file( $id );
+			$items[] = array(
+				'id'   => (int) $id,
+				'name' => $file ? wp_basename( $file ) : get_the_title( $id ),
+			);
+		}
+
 		wp_send_json_success(
 			array(
-				'ids'   => array_map( 'intval', $ids ),
-				'total' => count( $ids ),
+				'items' => $items,
+				'total' => count( $items ),
 			)
 		);
 	}
@@ -99,10 +110,12 @@ class LIO_Ajax {
 			);
 		}
 
+		$file = get_attached_file( $id );
+
 		wp_send_json_success(
 			array(
 				'id'      => $id,
-				'title'   => get_the_title( $id ),
+				'name'    => $file ? wp_basename( $file ) : get_the_title( $id ),
 				'saved'   => (int) $result['saved'],
 				'percent' => (float) $result['percent'],
 				'webp'    => (int) $result['webp'],

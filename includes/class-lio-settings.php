@@ -24,8 +24,9 @@ class LIO_Settings {
 			'jpeg_quality'  => 82,   // 40-100, lossy re-encode quality for JPEG.
 			'webp_enabled'  => 1,    // Generate .webp alongside images.
 			'webp_quality'  => 80,   // 40-100, WebP encode quality.
-			'auto_optimize' => 1,    // Optimize new uploads automatically.
+			'auto_optimize' => 1,    // Optimise new uploads automatically.
 			'serve_webp'    => 1,    // Swap <img> for <picture> on the front end.
+			'full_page_webp' => 0,   // Rewrite the whole page (catches page builders).
 			'keep_backup'   => 1,    // Keep an untouched copy of each original.
 		);
 	}
@@ -77,10 +78,11 @@ class LIO_Settings {
 			? max( 40, min( 100, (int) $input['webp_quality'] ) )
 			: $defaults['webp_quality'];
 
-		$out['webp_enabled']  = empty( $input['webp_enabled'] ) ? 0 : 1;
-		$out['auto_optimize'] = empty( $input['auto_optimize'] ) ? 0 : 1;
-		$out['serve_webp']    = empty( $input['serve_webp'] ) ? 0 : 1;
-		$out['keep_backup']   = empty( $input['keep_backup'] ) ? 0 : 1;
+		$out['webp_enabled']   = empty( $input['webp_enabled'] ) ? 0 : 1;
+		$out['auto_optimize']  = empty( $input['auto_optimize'] ) ? 0 : 1;
+		$out['serve_webp']     = empty( $input['serve_webp'] ) ? 0 : 1;
+		$out['full_page_webp'] = empty( $input['full_page_webp'] ) ? 0 : 1;
+		$out['keep_backup']    = empty( $input['keep_backup'] ) ? 0 : 1;
 
 		return $out;
 	}
