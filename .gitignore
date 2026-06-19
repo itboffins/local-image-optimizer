@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Dependencies / build (not used yet, but kept for future tooling)
+/node_modules/
+/vendor/
+
+# WordPress.org SVN export artifacts
+/svn/
+*.zip
+
+# Logs
+*.log
