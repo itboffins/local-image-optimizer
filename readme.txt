@@ -4,7 +4,7 @@ Tags: image optimization, compress images, webp, performance, page speed
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,11 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 3. The Optimizer column in the Media Library.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed: broken images (e.g. logos) caused by corrupt WebP generated from indexed/palette PNGs on some servers. WebP output is now validated and re-encoded via a palette-safe GD path; a WebP is only ever served if it decodes correctly.
+* Fixed: re-running the optimizer now repairs or removes previously broken WebP files instead of skipping them.
+* Hardened: a re-compressed image is validated before it can replace the original, so a faulty encode can never corrupt your originals.
 
 = 1.0.0 =
 * Initial release: compress on upload, bulk optimizer, WebP generation, automatic `<picture>` delivery, originals backup & restore.

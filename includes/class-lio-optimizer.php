@@ -193,16 +193,18 @@ class LIO_Optimizer {
 		}
 
 		$tmp_path = $saved['path'];
+		$valid    = $this->is_valid_image( $tmp_path, array( IMAGETYPE_JPEG, IMAGETYPE_PNG ) );
 		$smaller  = filesize( $tmp_path ) > 0 && filesize( $tmp_path ) < filesize( $file );
 
-		if ( $smaller ) {
+		// Never replace a good original with a smaller-but-corrupt re-encode.
+		if ( $smaller && $valid ) {
 			// copy() preserves the destination's ownership/permissions better
 			// than rename() across some hosts.
 			copy( $tmp_path, $file );
 		}
 		wp_delete_file( $tmp_path );
 
-		return $smaller;
+		return $smaller && $valid;
 	}
 
 	/**
@@ -218,34 +220,119 @@ class LIO_Optimizer {
 	private function make_webp( $file, $webp_quality ) {
 		$webp = $file . '.webp';
 
-		// Skip if a fresh WebP already exists.
-		if ( file_exists( $webp ) && filemtime( $webp ) >= filemtime( $file ) ) {
-			return true;
+		// Reuse an existing WebP only if it is fresh AND actually decodes. A
+		// stale or corrupt sibling is removed so it gets regenerated below —
+		// this is what lets a re-run repair previously-broken WebP files.
+		if ( file_exists( $webp ) ) {
+			if ( filemtime( $webp ) >= filemtime( $file ) && $this->is_valid_image( $webp, array( IMAGETYPE_WEBP ) ) ) {
+				return true;
+			}
+			wp_delete_file( $webp );
 		}
 
+		// First attempt: WordPress's chosen editor (GD or Imagick).
 		$editor = wp_get_image_editor( $file );
-		if ( is_wp_error( $editor ) ) {
+		if ( ! is_wp_error( $editor ) ) {
+			$editor->set_quality( $webp_quality );
+			$saved = $editor->save( $webp, 'image/webp' );
+			// Some editors normalise the filename; move it where we expect.
+			if ( ! is_wp_error( $saved ) && ! empty( $saved['path'] ) && $saved['path'] !== $webp ) {
+				@rename( $saved['path'], $webp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+		}
+
+		// If that produced nothing that decodes, fall back to a direct GD encode
+		// that flattens palette (indexed) images to truecolor first. Indexed
+		// PNGs — logos especially — are a common source of corrupt WebP from
+		// some builds of libgd, which shows as a broken image on the front end.
+		if ( ! $this->is_valid_image( $webp, array( IMAGETYPE_WEBP ) ) ) {
+			if ( file_exists( $webp ) ) {
+				wp_delete_file( $webp );
+			}
+			$this->gd_encode_webp( $file, $webp, $webp_quality );
+		}
+
+		// Only keep a WebP that actually decodes...
+		if ( ! $this->is_valid_image( $webp, array( IMAGETYPE_WEBP ) ) ) {
+			if ( file_exists( $webp ) ) {
+				wp_delete_file( $webp );
+			}
 			return false;
 		}
-		$editor->set_quality( $webp_quality );
 
-		$saved = $editor->save( $webp, 'image/webp' );
-		if ( is_wp_error( $saved ) || empty( $saved['path'] ) || ! file_exists( $saved['path'] ) ) {
-			return false;
-		}
-
-		// Some editors normalise the filename; make sure it lives where we expect.
-		if ( $saved['path'] !== $webp ) {
-			@rename( $saved['path'], $webp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		}
-
-		// A WebP that is bigger than the original helps nobody — drop it.
-		if ( file_exists( $webp ) && filesize( $webp ) >= filesize( $file ) ) {
+		// ...and that is genuinely smaller than the original.
+		if ( filesize( $webp ) >= filesize( $file ) ) {
 			wp_delete_file( $webp );
 			return false;
 		}
 
-		return file_exists( $webp );
+		return true;
+	}
+
+	/**
+	 * Validate that a file is a decodable raster image of an allowed type.
+	 *
+	 * @param string $path          Absolute path.
+	 * @param int[]  $allowed_types IMAGETYPE_* constants to accept.
+	 * @return bool
+	 */
+	private function is_valid_image( $path, $allowed_types ) {
+		if ( ! file_exists( $path ) || filesize( $path ) < 12 ) {
+			return false;
+		}
+		$info = @getimagesize( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! $info || empty( $info[0] ) || empty( $info[1] ) ) {
+			return false;
+		}
+		$type = isset( $info[2] ) ? $info[2] : 0;
+		return in_array( $type, $allowed_types, true );
+	}
+
+	/**
+	 * Encode WebP directly with GD, flattening indexed/palette images to
+	 * truecolor and preserving transparency. Returns false if GD is unavailable
+	 * or cannot read the source.
+	 *
+	 * @param string $file    Source image path.
+	 * @param string $webp    Destination .webp path.
+	 * @param int    $quality WebP quality (0-100).
+	 * @return bool
+	 */
+	private function gd_encode_webp( $file, $webp, $quality ) {
+		if ( ! function_exists( 'imagewebp' ) ) {
+			return false;
+		}
+
+		$info = @getimagesize( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$type = $info && isset( $info[2] ) ? $info[2] : 0;
+
+		switch ( $type ) {
+			case IMAGETYPE_JPEG:
+				$img = @imagecreatefromjpeg( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				break;
+			case IMAGETYPE_PNG:
+				$img = @imagecreatefrompng( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				break;
+			default:
+				return false;
+		}
+
+		if ( ! $img ) {
+			return false;
+		}
+
+		// Flatten palette images: libgd's imagewebp can emit corrupt output from
+		// indexed sources, so promote them to truecolor first.
+		if ( function_exists( 'imageistruecolor' ) && ! imageistruecolor( $img ) && function_exists( 'imagepalettetotruecolor' ) ) {
+			imagepalettetotruecolor( $img );
+		}
+		imagealphablending( $img, false );
+		imagesavealpha( $img, true );
+
+		$ok = imagewebp( $img, $webp, (int) $quality );
+		imagedestroy( $img );
+
+		return (bool) $ok;
 	}
 
 	/**
