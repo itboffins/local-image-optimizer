@@ -1,0 +1,138 @@
+/* Opening Hours by IT Boffins — front-end styles. */
+
+/* ---- Status banner ---- */
+.iboh-banner {
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 10px 44px 10px 18px;
+	font-size: 15px;
+	line-height: 1.4;
+	z-index: 99990;
+	text-align: center;
+}
+
+.iboh-banner.iboh-pos-top {
+	position: sticky;
+	top: 0;
+}
+
+.iboh-banner.iboh-pos-bottom {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+}
+
+.iboh-banner-inner {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.iboh-banner-main {
+	font-weight: 700;
+}
+
+.iboh-banner-sub {
+	opacity: 0.9;
+}
+
+.iboh-banner-close {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	transform: translateY(-50%);
+	background: transparent;
+	border: 0;
+	color: inherit;
+	font-size: 22px;
+	line-height: 1;
+	cursor: pointer;
+	opacity: 0.8;
+	padding: 0 4px;
+}
+
+.iboh-banner-close:hover {
+	opacity: 1;
+}
+
+/* ---- Status indicator dot ---- */
+.iboh-dot {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.85;
+	flex: 0 0 auto;
+}
+
+.iboh-open .iboh-dot {
+	background: #1db954;
+}
+
+.iboh-closed .iboh-dot {
+	background: #e5484d;
+}
+
+/* ---- Inline status (shortcode/block) ---- */
+.iboh-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 10px;
+	font-size: 15px;
+}
+
+.iboh-status-main {
+	font-weight: 700;
+}
+
+.iboh-status.iboh-open .iboh-status-main {
+	color: #0a7a3d;
+}
+
+.iboh-status.iboh-closed .iboh-status-main {
+	color: #b3261e;
+}
+
+.iboh-status-sub {
+	opacity: 0.8;
+}
+
+/* ---- Hours table ---- */
+.iboh-widget {
+	max-width: 420px;
+}
+
+.iboh-hours {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 15px;
+}
+
+.iboh-hours th,
+.iboh-hours td {
+	text-align: left;
+	padding: 7px 10px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.iboh-hours .iboh-day {
+	font-weight: 600;
+}
+
+.iboh-hours .iboh-times {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.iboh-hours tr.iboh-today {
+	background: rgba(0, 184, 107, 0.10);
+}
+
+.iboh-hours tr.iboh-today .iboh-day {
+	position: relative;
+}

@@ -1,0 +1,161 @@
+# Copyright (C) 2026 IT Boffins
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Opening Hours by IT Boffins 1.0.0\n"
+"Report-Msgid-Bugs-To: https://itboffins.com/\n"
+"Last-Translator: IT Boffins <hello@itboffins.com>\n"
+"Language-Team: IT Boffins <hello@itboffins.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-20T00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Domain: opening-hours-banner\n"
+
+#. Default banner label: shown when open.
+msgid "We're open"
+msgstr ""
+
+#. Default banner label: shown when closed.
+msgid "Sorry, we're closed"
+msgstr ""
+
+#. Default banner label: open, with closing time. %s = time.
+msgid "Closes at %s"
+msgstr ""
+
+#. Default banner label: closed, opens later today. %s = time.
+msgid "Opens today at %s"
+msgstr ""
+
+#. Default banner label: closed, opens another day. %1$s = weekday, %2$s = time.
+msgid "Opens %1$s at %2$s"
+msgstr ""
+
+msgid "Opening soon"
+msgstr ""
+
+msgid "Closing soon"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "Open 24 hours"
+msgstr ""
+
+msgid "Opening Hours"
+msgstr ""
+
+msgid "Free plugin"
+msgstr ""
+
+msgid "Live preview"
+msgstr ""
+
+msgid "Reflects the form below in real time, in your site timezone. Save changes to apply them on the front end."
+msgstr ""
+
+msgid "Weekly hours"
+msgstr ""
+
+msgid "Add more than one row per day for split hours (e.g. a lunch break). For overnight hours, set a closing time earlier than the opening time (e.g. 22:00 – 02:00)."
+msgstr ""
+
+msgid "Copy Monday to weekdays"
+msgstr ""
+
+msgid "Special dates &amp; holidays"
+msgstr ""
+
+msgid "Override a specific date — close for a public holiday, or set special hours. These take priority over the weekly hours."
+msgstr ""
+
+msgid "Add a date"
+msgstr ""
+
+msgid "Status banner"
+msgstr ""
+
+msgid "Show banner"
+msgstr ""
+
+msgid "Display the live open/closed banner on the front end"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Top of page"
+msgstr ""
+
+msgid "Bottom of page"
+msgstr ""
+
+msgid "Dismissible"
+msgstr ""
+
+msgid "Let visitors close the banner"
+msgstr ""
+
+msgid "Next-change text"
+msgstr ""
+
+msgid "Show \"Closes at …\" / \"Opens …\" alongside the status"
+msgstr ""
+
+msgid "\"Soon\" threshold"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "Within this many minutes of opening or closing, the banner shows \"Opening soon\" / \"Closing soon\". Set to 0 to disable."
+msgstr ""
+
+msgid "Colours"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Wording"
+msgstr ""
+
+msgid "Customise the messages. Keep the %s, %1$s and %2$s placeholders — they are replaced with the time and weekday."
+msgstr ""
+
+msgid "Show your hours anywhere"
+msgstr ""
+
+msgid "Use the \"Opening Hours\" block, or the shortcode:"
+msgstr ""
+
+#. translators: %s: link to itboffins.com
+msgid "More free plugins at %s"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "+ Add hours"
+msgstr ""
+
+msgid "Label (optional)"
+msgstr ""
+
+msgid "Dismiss"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Security check failed. Please reload and try again."
+msgstr ""
+
+msgid "You do not have permission to do this."
+msgstr ""
