@@ -14,7 +14,7 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 - 🌍 **Runs anywhere** — no `exec()`, no `.htaccess` requirement.
 - 🪶 **WebP for everyone** — delivered via the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS.
 - 🧱 **Page-builder friendly** — optional whole-page mode also converts Elementor/Divi and theme-template images.
-- ↩️ **Reversible** — keeps a backup of every original; restore with one click.
+- ↩️ **Reversible** — optional protected backups let you restore originals with one click.
 
 ## Features
 
@@ -26,7 +26,7 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 | WebP generation | Creates `image.jpg.webp` siblings where the server supports WebP |
 | Auto WebP delivery | Wraps `<img>` in `<picture>` with a WebP `<source>` + original fallback |
 | Whole-page mode | Optional output buffering rewrites every image, including page-builder and theme output |
-| Backup & restore | Untouched originals kept in `/uploads/lio-originals` |
+| Backup & restore | Optional protected originals kept in a randomised uploads subfolder |
 | Capability panel | Shows exactly what GD/Imagick/WebP your host supports |
 
 ## Requirements
@@ -42,7 +42,7 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 1. Download or clone this repository.
 2. Copy the `local-image-optimizer` folder into `wp-content/plugins/`.
 3. Activate **Local Image Optimiser** in **Plugins**.
-4. Configure under **Settings → Image Optimiser**; bulk-process under **Media → Bulk Optimise**.
+4. Configure under **Settings → Image Optimiser**; administrators can bulk-process under **Media → Bulk Optimise**.
 
 ### From the WordPress.org directory
 

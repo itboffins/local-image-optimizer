@@ -27,8 +27,61 @@ class LIO_Settings {
 			'auto_optimize' => 1,    // Optimise new uploads automatically.
 			'serve_webp'    => 1,    // Swap <img> for <picture> on the front end.
 			'full_page_webp' => 0,   // Rewrite the whole page (catches page builders).
-			'keep_backup'   => 1,    // Keep an untouched copy of each original.
+			'keep_backup'   => 0,    // Keep originals only when explicitly enabled.
+			'backup_dir'    => self::default_backup_dir(),
 		);
+	}
+
+	/**
+	 * Get the current protected backup directory name.
+	 *
+	 * @return string
+	 */
+	public static function backup_dir_name() {
+		return self::sanitize_backup_dir( self::get( 'backup_dir', self::default_backup_dir() ) );
+	}
+
+	/**
+	 * Directory names that must be treated as backup storage.
+	 *
+	 * @return string[]
+	 */
+	public static function backup_dir_names() {
+		return array_values( array_unique( array_filter( array( self::backup_dir_name(), LIO_BACKUP_DIR ) ) ) );
+	}
+
+	/**
+	 * Sanitize an internally generated backup directory name.
+	 *
+	 * @param string $dir Directory name.
+	 * @return string
+	 */
+	private static function sanitize_backup_dir( $dir ) {
+		$dir     = sanitize_file_name( (string) $dir );
+		$pattern = '/^' . preg_quote( LIO_BACKUP_DIR, '/' ) . '-[a-f0-9]{12}$/';
+		return preg_match( $pattern, $dir ) ? $dir : self::default_backup_dir();
+	}
+
+	/**
+	 * Build a stable, non-public backup directory name for this site.
+	 *
+	 * @return string
+	 */
+	private static function default_backup_dir() {
+		$site = function_exists( 'home_url' ) ? home_url( '/' ) : '';
+		$salt = function_exists( 'wp_salt' ) ? wp_salt( 'auth' ) : '';
+
+		if ( '' === $salt ) {
+			foreach ( array( 'AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY', 'AUTH_SALT', 'SECURE_AUTH_SALT', 'LOGGED_IN_SALT', 'NONCE_SALT' ) as $constant ) {
+				if ( defined( $constant ) ) {
+					$salt .= constant( $constant );
+				}
+			}
+		}
+
+		$base = defined( 'ABSPATH' ) ? ABSPATH : __DIR__;
+		$hash = substr( hash( 'sha256', $salt . '|' . $site . '|' . $base ), 0, 12 );
+		return LIO_BACKUP_DIR . '-' . $hash;
 	}
 
 	/**
@@ -68,6 +121,8 @@ class LIO_Settings {
 	public static function sanitize( $input ) {
 		$input    = is_array( $input ) ? $input : array();
 		$defaults = self::defaults();
+		$current  = get_option( LIO_OPTION, array() );
+		$current  = is_array( $current ) ? $current : array();
 		$out      = array();
 
 		$out['jpeg_quality'] = isset( $input['jpeg_quality'] )
@@ -83,6 +138,7 @@ class LIO_Settings {
 		$out['serve_webp']     = empty( $input['serve_webp'] ) ? 0 : 1;
 		$out['full_page_webp'] = empty( $input['full_page_webp'] ) ? 0 : 1;
 		$out['keep_backup']    = empty( $input['keep_backup'] ) ? 0 : 1;
+		$out['backup_dir']     = self::sanitize_backup_dir( isset( $current['backup_dir'] ) ? $current['backup_dir'] : $defaults['backup_dir'] );
 
 		return $out;
 	}

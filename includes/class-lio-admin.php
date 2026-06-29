@@ -72,7 +72,7 @@ class LIO_Admin {
 		add_media_page(
 			__( 'Bulk Image Optimiser', 'local-image-optimizer' ),
 			__( 'Bulk Optimise', 'local-image-optimizer' ),
-			'upload_files',
+			'manage_options',
 			'lio-bulk',
 			array( $this, 'render_bulk_page' )
 		);
@@ -247,7 +247,15 @@ class LIO_Admin {
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[keep_backup]" value="1" <?php checked( $settings['keep_backup'] ); ?> />
 								<?php esc_html_e( 'Keep an untouched backup of every original so you can restore it later', 'local-image-optimizer' ); ?>
 							</label>
-							<p class="description"><?php esc_html_e( 'Backups live in /wp-content/uploads/lio-originals. Uses extra disk space but lets you undo.', 'local-image-optimizer' ); ?></p>
+							<p class="description">
+								<?php
+								printf(
+									/* translators: %s: backup folder name */
+									esc_html__( 'Backups are off by default for new installs. When enabled, originals are stored in a randomised uploads subfolder (%s) with deny files where supported.', 'local-image-optimizer' ),
+									esc_html( $settings['backup_dir'] )
+								);
+								?>
+							</p>
 						</td>
 					</tr>
 				</table>
@@ -282,7 +290,7 @@ class LIO_Admin {
 	 * Render the bulk optimiser screen.
 	 */
 	public function render_bulk_page() {
-		if ( ! current_user_can( 'upload_files' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		$caps = LIO_Capabilities::get();
@@ -381,7 +389,9 @@ class LIO_Admin {
 				esc_html( sprintf( /* translators: %s percent saved */ __( '%s%% smaller', 'local-image-optimizer' ), $stats['percent'] ) ),
 				esc_html( size_format( $stats['saved'] ) )
 			);
-			echo '<br><button type="button" class="button-link lio-restore-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Restore original', 'local-image-optimizer' ) . '</button>';
+			if ( $this->optimizer->has_backup( $post_id ) ) {
+				echo '<br><button type="button" class="button-link lio-restore-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Restore original', 'local-image-optimizer' ) . '</button>';
+			}
 		} else {
 			echo '<button type="button" class="button button-small lio-optimize-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Optimise', 'local-image-optimizer' ) . '</button>';
 		}

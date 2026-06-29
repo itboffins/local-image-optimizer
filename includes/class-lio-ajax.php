@@ -42,14 +42,37 @@ class LIO_Ajax {
 	}
 
 	/**
-	 * Shared guard: valid nonce + capability.
+	 * Shared nonce check for every AJAX endpoint.
 	 */
-	private function guard() {
+	private function guard_nonce() {
 		if ( ! check_ajax_referer( 'lio_ajax', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed. Please reload and try again.', 'local-image-optimizer' ) ), 403 );
 		}
-		if ( ! current_user_can( 'upload_files' ) ) {
+	}
+
+	/**
+	 * Guard site-wide actions that can enumerate or modify all uploads.
+	 */
+	private function guard_site_action() {
+		$this->guard_nonce();
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to do this.', 'local-image-optimizer' ) ), 403 );
+		}
+	}
+
+	/**
+	 * Guard a single attachment action.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 */
+	private function guard_attachment_action( $attachment_id ) {
+		$post = get_post( $attachment_id );
+		if ( ! $post || 'attachment' !== $post->post_type ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimizer' ) ) );
+		}
+
+		if ( ! current_user_can( 'upload_files' ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to edit this image.', 'local-image-optimizer' ) ), 403 );
 		}
 	}
 
@@ -57,7 +80,7 @@ class LIO_Ajax {
 	 * Return all optimizable attachment IDs.
 	 */
 	public function get_ids() {
-		$this->guard();
+		$this->guard_site_action();
 
 		$ids = get_posts(
 			array(
@@ -94,12 +117,13 @@ class LIO_Ajax {
 	 * Optimize a single attachment.
 	 */
 	public function optimize() {
-		$this->guard();
+		$this->guard_nonce();
 
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimizer' ) ) );
 		}
+		$this->guard_attachment_action( $id );
 
 		$result = $this->optimizer->optimize_attachment( $id );
 
@@ -130,12 +154,13 @@ class LIO_Ajax {
 	 * Restore a single attachment from backup.
 	 */
 	public function restore() {
-		$this->guard();
+		$this->guard_nonce();
 
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimizer' ) ) );
 		}
+		$this->guard_attachment_action( $id );
 
 		$result = $this->optimizer->restore_attachment( $id );
 
@@ -155,7 +180,7 @@ class LIO_Ajax {
 	 * Count eligible files in the uploads folder (for the scan progress bar).
 	 */
 	public function scan_count() {
-		$this->guard();
+		$this->guard_site_action();
 
 		$scanner = new LIO_Scanner( $this->optimizer );
 		wp_send_json_success( $scanner->count_eligible() );
@@ -165,7 +190,7 @@ class LIO_Ajax {
 	 * Process one batch of the uploads-folder WebP scan.
 	 */
 	public function scan_batch() {
-		$this->guard();
+		$this->guard_site_action();
 
 		// Give the batch room, but the scanner's own wall-clock budget is the
 		// real limit so we never run away.

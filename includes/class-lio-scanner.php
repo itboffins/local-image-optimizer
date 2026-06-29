@@ -249,9 +249,11 @@ class LIO_Scanner {
 			if ( is_dir( $path ) ) {
 				$norm = trailingslashit( wp_normalize_path( $path ) );
 
-				// Prune the backup subtree entirely.
-				if ( false !== strpos( $norm, '/' . LIO_BACKUP_DIR . '/' ) ) {
-					continue;
+				// Prune backup subtrees entirely, including legacy backup folders.
+				foreach ( LIO_Settings::backup_dir_names() as $backup_dir ) {
+					if ( false !== strpos( $norm, '/' . $backup_dir . '/' ) ) {
+						continue 2;
+					}
 				}
 				// Stay strictly within the uploads tree.
 				$real = realpath( $path );

@@ -131,7 +131,10 @@ class LIO_Optimizer {
 		}
 
 		$backup = $this->backup_path( $main_file );
-		if ( ! file_exists( $backup ) ) {
+		if ( ! $backup || ! file_exists( $backup ) ) {
+			$backup = $this->backup_path( $main_file, LIO_BACKUP_DIR );
+		}
+		if ( ! $backup || ! file_exists( $backup ) ) {
 			return new WP_Error( 'lio_no_backup', __( 'No backup of the original is available to restore.', 'local-image-optimizer' ) );
 		}
 
@@ -156,6 +159,28 @@ class LIO_Optimizer {
 		delete_post_meta( $attachment_id, LIO_META );
 
 		return true;
+	}
+
+	/**
+	 * Does this attachment have a restorable original backup?
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return bool
+	 */
+	public function has_backup( $attachment_id ) {
+		$main_file = get_attached_file( $attachment_id );
+		if ( ! $main_file ) {
+			return false;
+		}
+
+		foreach ( array( null, LIO_BACKUP_DIR ) as $dir_name ) {
+			$backup = $this->backup_path( $main_file, $dir_name );
+			if ( $backup && file_exists( $backup ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -409,8 +434,14 @@ class LIO_Optimizer {
 	 */
 	private function backup( $file ) {
 		$dest = $this->backup_path( $file );
-		if ( ! $dest || file_exists( $dest ) ) {
-			return file_exists( (string) $dest );
+		if ( ! $dest ) {
+			return false;
+		}
+		if ( file_exists( $dest ) ) {
+			return true;
+		}
+		if ( ! $this->ensure_backup_dir_protection( $this->backup_root() ) ) {
+			return false;
 		}
 		wp_mkdir_p( dirname( $dest ) );
 		return copy( $file, $dest );
@@ -422,17 +453,90 @@ class LIO_Optimizer {
 	 * @param string $file Absolute path inside the uploads directory.
 	 * @return string|false
 	 */
-	private function backup_path( $file ) {
-		$uploads = wp_get_upload_dir();
-		$basedir = trailingslashit( $uploads['basedir'] );
+	private function backup_path( $file, $dir_name = null ) {
+		$uploads   = wp_get_upload_dir();
+		$base_real = realpath( $uploads['basedir'] );
+		$file_real = realpath( $file );
 
-		// Only back up files that live under /uploads.
-		if ( 0 !== strpos( $file, $uploads['basedir'] ) ) {
+		if ( false === $base_real || false === $file_real ) {
 			return false;
 		}
 
-		$relative = ltrim( substr( $file, strlen( $basedir ) ), '/\\' );
-		return $basedir . LIO_BACKUP_DIR . '/' . $relative;
+		$base = trailingslashit( wp_normalize_path( $base_real ) );
+		$path = wp_normalize_path( $file_real );
+		if ( 0 !== strpos( $path, $base ) ) {
+			return false;
+		}
+
+		$relative = ltrim( substr( $path, strlen( $base ) ), '/\\' );
+		return trailingslashit( $this->backup_root( $dir_name ) ) . $relative;
+	}
+
+	/**
+	 * Root backup directory for new or legacy backups.
+	 *
+	 * @param string|null $dir_name Optional directory name.
+	 * @return string
+	 */
+	private function backup_root( $dir_name = null ) {
+		$uploads  = wp_get_upload_dir();
+		$dir_name = null === $dir_name ? LIO_Settings::backup_dir_name() : sanitize_file_name( $dir_name );
+		return trailingslashit( $uploads['basedir'] ) . $dir_name;
+	}
+
+	/**
+	 * Create deny files before placing originals in the public uploads tree.
+	 *
+	 * @param string $dir Backup root directory.
+	 * @return bool
+	 */
+	private function ensure_backup_dir_protection( $dir ) {
+		wp_mkdir_p( $dir );
+		if ( ! is_dir( $dir ) || ! wp_is_writable( $dir ) ) {
+			return false;
+		}
+
+		$files = array(
+			'index.php'  => "<?php\n// Silence is golden.\n",
+			'.htaccess'  => "# Local Image Optimizer backup protection\n"
+				. "<IfModule mod_authz_core.c>\n"
+				. "Require all denied\n"
+				. "</IfModule>\n"
+				. "<IfModule !mod_authz_core.c>\n"
+				. "Deny from all\n"
+				. "</IfModule>\n",
+			'web.config' => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				. "<configuration>\n"
+				. "  <system.webServer>\n"
+				. "    <handlers accessPolicy=\"None\" />\n"
+				. "    <security>\n"
+				. "      <authorization>\n"
+				. "        <remove users=\"*\" roles=\"\" verbs=\"\" />\n"
+				. "        <add accessType=\"Deny\" users=\"*\" />\n"
+				. "      </authorization>\n"
+				. "    </security>\n"
+				. "  </system.webServer>\n"
+				. "</configuration>\n",
+		);
+
+		foreach ( $files as $file => $contents ) {
+			if ( ! $this->write_protection_file( trailingslashit( $dir ) . $file, $contents ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Write or refresh a backup-protection file.
+	 *
+	 * @param string $path     Destination path.
+	 * @param string $contents File contents.
+	 * @return bool
+	 */
+	private function write_protection_file( $path, $contents ) {
+		return false !== file_put_contents( $path, $contents, LOCK_EX );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -464,8 +568,10 @@ class LIO_Optimizer {
 	public function should_skip_path( $file ) {
 		$normalized = wp_normalize_path( $file );
 
-		if ( false !== strpos( $normalized, '/' . LIO_BACKUP_DIR . '/' ) ) {
-			return 'backup';
+		foreach ( LIO_Settings::backup_dir_names() as $backup_dir ) {
+			if ( false !== strpos( $normalized, '/' . $backup_dir . '/' ) ) {
+				return 'backup';
+			}
 		}
 		$ext = strtolower( pathinfo( $normalized, PATHINFO_EXTENSION ) );
 		if ( ! in_array( $ext, array( 'jpg', 'jpeg', 'png' ), true ) ) {

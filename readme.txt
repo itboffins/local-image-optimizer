@@ -4,7 +4,7 @@ Tags: image optimisation, compress images, webp, performance, page speed
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Unlike most image plugins, there is **no external service**, no API key, no mont
 * **WebP conversion** — generates WebP copies of your images (where your server supports it).
 * **Automatic WebP delivery** — serves WebP to browsers that support it using the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS without any server config or `.htaccess` edits. Browsers that don't support WebP get the original automatically.
 * **Works with page builders** — an optional whole-page mode rewrites every image on the page, including those added by Elementor, Divi and theme templates.
-* **Safe & reversible** — keeps an untouched backup of every original so you can restore it with one click.
+* **Safe & reversible** — optionally keeps protected untouched backups so you can restore originals with one click.
 * **Honest about your server** — a settings panel shows exactly what your host can do (GD, Imagick, WebP support) so there are no surprises.
 
 = Why "local"? =
@@ -44,7 +44,7 @@ This plugin does not send your images or any data to any external service. All p
 1. Upload the `local-image-optimizer` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
 2. Activate the plugin.
 3. Go to **Settings → Image Optimiser** to review your server's capabilities and adjust quality settings.
-4. New uploads are optimised automatically. To compress existing images, go to **Media → Bulk Optimise**.
+4. New uploads are optimised automatically. Administrators can compress existing images under **Media → Bulk Optimise**.
 
 == Frequently Asked Questions ==
 
@@ -66,7 +66,7 @@ The bulk optimiser only processes images in your **Media Library**. Page-builder
 
 = Will this break my images if the quality is too low? =
 
-You can set the JPEG and WebP quality on the settings page. The default (82 / 80) is visually lossless for most photos. The plugin also keeps a backup of every original (unless you turn that off), so you can restore any image with one click.
+You can set the JPEG and WebP quality on the settings page. The default (82 / 80) is visually lossless for most photos. Optional backups can be enabled if you want one-click restore; new installs keep backups off by default.
 
 = Does it work with my CDN / page cache? =
 
@@ -83,6 +83,10 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 3. The Optimiser column in the Media Library.
 
 == Changelog ==
+
+= 1.0.4 =
+* Security hardening: site-wide bulk optimisation and whole-uploads scans now require administrator capability, while single-image actions require permission to edit the selected attachment.
+* Security hardening: original backups are off by default for new installs and, when enabled, are stored in a randomised uploads subfolder with deny files. Legacy backups remain restorable.
 
 = 1.0.3 =
 * New: **Scan entire uploads folder** — generate WebP for every JPEG/PNG on disk, including page-builder (Elementor/Divi) and theme images that are not in the Media Library. Memory-safe, resumable, and skips the originals backup folder.
@@ -104,6 +108,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.4 =
+Hardens AJAX permissions and backup storage. Recommended before public directory submission.
 
 = 1.0.3 =
 Adds a whole-uploads-folder WebP scanner (catches page-builder/theme images) and a branded admin redesign.
