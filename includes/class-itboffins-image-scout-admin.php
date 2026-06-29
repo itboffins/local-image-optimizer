@@ -270,18 +270,6 @@ class ITBOFFINS_IMAGE_SCOUT_Admin {
 
 					<div class="itboffins-image-scout-setting">
 						<div class="itboffins-image-scout-setting-copy">
-							<h3><?php esc_html_e( 'Find images page builders hide from WordPress', 'itboffins-image-scout' ); ?></h3>
-							<p><?php esc_html_e( 'Turn this on if you use Elementor, Divi, a custom theme, or imported pages. It checks the finished page for images that do not pass through the normal WordPress editor.', 'itboffins-image-scout' ); ?></p>
-							<p class="itboffins-image-scout-hint"><?php esc_html_e( 'Leave it off for very simple sites that only use the block editor.', 'itboffins-image-scout' ); ?></p>
-						</div>
-						<label class="itboffins-image-scout-toggle">
-							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[full_page_webp]" value="1" <?php checked( $settings['full_page_webp'] ); ?> />
-							<span><?php esc_html_e( 'Check the whole page', 'itboffins-image-scout' ); ?></span>
-						</label>
-					</div>
-
-					<div class="itboffins-image-scout-setting">
-						<div class="itboffins-image-scout-setting-copy">
 							<h3><?php esc_html_e( 'Keep a restore copy', 'itboffins-image-scout' ); ?></h3>
 							<p><?php esc_html_e( 'This uses more storage, but lets you put an image back exactly as it was before optimisation. Leave it off if saving disk space is more important.', 'itboffins-image-scout' ); ?></p>
 							<p class="itboffins-image-scout-hint">
@@ -309,7 +297,7 @@ class ITBOFFINS_IMAGE_SCOUT_Admin {
 					<?php
 					printf(
 						/* translators: %s: link to bulk optimiser */
-						esc_html__( 'Already have images in your library? Run the %s to compress them all.', 'itboffins-image-scout' ),
+						esc_html__( 'Already have images in your library, theme, or page builder uploads? Run the %s to compress Library files and scan the whole uploads folder.', 'itboffins-image-scout' ),
 						'<a href="' . esc_url( admin_url( 'upload.php?page=itboffins-image-scout-bulk' ) ) . '">' . esc_html__( 'Image Scout Bulk Tool', 'itboffins-image-scout' ) . '</a>'
 					);
 					?>

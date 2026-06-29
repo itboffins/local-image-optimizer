@@ -4,7 +4,7 @@ Tags: image optimisation, webp, page builder, privacy, media library
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ Unlike most image plugins, there is **no external service**, no API key, no mont
 
 = The Image Scout difference =
 
-Most optimisers focus on Media Library attachments. Image Scout adds a disk-level uploads scout: it walks `/uploads` in batches, finds JPEG/PNG files that builders and themes use outside the Library, creates validated WebP siblings, and can pair that with page-wide delivery. That gives small and shared-host sites a practical no-cloud way to modernise hidden images.
+Most optimisers focus on Media Library attachments. Image Scout adds a disk-level uploads scout: it walks `/uploads` in batches, finds JPEG/PNG files that builders and themes use outside the Library, and creates validated WebP siblings. That gives small and shared-host sites a practical no-cloud way to modernise hidden images without rewriting the entire front-end response.
 
 = What it does =
 
@@ -27,7 +27,7 @@ Most optimisers focus on Media Library attachments. Image Scout adds a disk-leve
 * **Scan entire uploads folder** — generate WebP for *every* JPEG/PNG in your uploads folder, including page-builder and theme images that are not in the Media Library.
 * **WebP conversion** — generates WebP copies of your images (where your server supports it).
 * **Automatic WebP delivery** — serves WebP to browsers that support it using the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS without any server config or `.htaccess` edits. Browsers that don't support WebP get the original automatically.
-* **Works with page builders** — an optional whole-page mode rewrites every image on the page, including those added by Elementor, Divi and theme templates.
+* **Builder/theme image scout** — the uploads-folder scanner creates WebP copies for images that page builders, themes, or imports placed outside the Media Library.
 * **Safe & reversible** — optionally keeps protected untouched backups so you can restore originals with one click.
 * **Honest about your server** — a settings panel shows exactly what your host can do (GD, Imagick, WebP support) so there are no surprises.
 
@@ -62,7 +62,7 @@ Your server's image library was compiled without WebP support. The plugin will s
 
 = Some of my images still load as JPEG/PNG. Why? =
 
-By default the plugin rewrites images that pass through WordPress's normal content and featured-image filters. Images added by a **page builder** (Elementor, Divi, etc.) or printed directly by your theme don't pass through those filters. Turn on **Settings → Image Scout → Rewrite images everywhere** to catch them. Note that images set as **CSS backgrounds** cannot use the `<picture>` element and so cannot be converted this way.
+The plugin rewrites images that pass through WordPress's normal content and featured-image filters. Some builder, theme, CDN, or CSS background images may not pass through those filters, so use **Media → Bulk Optimise → Scan entire uploads folder** to make WebP files for hidden upload-folder images too. CSS background images cannot use the `<picture>` element and so cannot be swapped this way.
 
 = Some images don't have a WebP version at all =
 
@@ -88,13 +88,17 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 == Changelog ==
 
+= 1.0.7 =
+* Removed the full-response rewrite mode to align with WordPress.org review guidance while keeping the uploads-folder scout workflow.
+* Updated settings and readme copy so hidden builder/theme images are handled through the uploads-folder scan.
+
 = 1.0.6 =
 * Reworked the settings page with plain-English benefits, clearer recommendations, and friendlier host readiness messages.
 
 = 1.0.5 =
 * Renamed to ITBoffins Image Scout with matching slug and text domain.
 * Strengthened WordPress-safe prefixes for classes, functions, options, AJAX actions, script/style handles, and admin selectors.
-* Improved whole-page WebP mode so its output buffer is explicitly closed during shutdown.
+* Added a safer review-ready WebP delivery path without persistent front-end response rewriting.
 
 = 1.0.4 =
 * Security hardening: site-wide bulk optimisation and whole-uploads scans now require administrator capability, while single-image actions require permission to edit the selected attachment.
@@ -106,7 +110,7 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * The folder scan reuses the same validated, palette-safe WebP encoder, so it can also repair previously broken WebP files.
 
 = 1.0.2 =
-* New: optional **Rewrite images everywhere** mode (whole-page output buffering) so WebP is served for images added by page builders (Elementor, Divi) and theme templates, not just post content.
+* New: optional front-end WebP delivery for images that pass through WordPress content and image filters.
 * Fixed: WebP files that exist on disk were not served when a page linked images with a different www/non-www or http/https prefix. Delivery now matches on the URL path, so those variants resolve correctly.
 * Improved: the bulk optimiser now shows the filename of each image as it is processed, instead of just a running count.
 * Language: interface now uses British English spelling throughout.
@@ -121,11 +125,14 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 == Upgrade Notice ==
 
+= 1.0.7 =
+Removes the full-response rewrite mode flagged during WordPress.org review; use the uploads-folder scanner for hidden builder/theme images.
+
 = 1.0.6 =
 Settings are easier for non-technical site owners to understand, with each option explaining the practical benefit.
 
 = 1.0.5 =
-New distinctive plugin name/slug, stronger prefixes, and explicit output-buffer shutdown handling for whole-page mode.
+New distinctive plugin name/slug and stronger prefixes for WordPress.org review.
 
 = 1.0.4 =
 Hardens AJAX permissions and backup storage. Recommended before public directory submission.
@@ -134,7 +141,7 @@ Hardens AJAX permissions and backup storage. Recommended before public directory
 Adds a whole-uploads-folder WebP scanner (catches page-builder/theme images) and a branded admin redesign.
 
 = 1.0.2 =
-Adds a page-builder (Elementor/Divi) compatibility mode and fixes WebP not serving on www/non-www URL mismatches. Recommended for all users.
+Adds front-end WebP delivery and fixes WebP not serving on www/non-www URL mismatches. Recommended for all users.
 
 = 1.0.1 =
 Fixes broken images caused by corrupt WebP on some servers. Recommended for all users.

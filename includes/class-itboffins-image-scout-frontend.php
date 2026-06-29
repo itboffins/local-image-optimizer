@@ -7,11 +7,9 @@
  * Apache, Nginx, LiteSpeed, IIS — any server — and browsers that do not support
  * WebP simply fall back to the original <img>.
  *
- * Two modes:
- *  - Content mode (default): hooks the usual content/thumbnail filters.
- *  - Whole-page mode (opt-in): buffers the entire page output and rewrites every
- *    <img>, which also catches images output by page builders (Elementor, Divi)
- *    and theme templates that never pass through the content filters.
+ * Hooks the usual content/thumbnail filters. The uploads-folder scout handles
+ * images that are not Media Library attachments, without rewriting the entire
+ * front-end response.
  *
  * @package ITBoffins_Image_Scout
  */
@@ -50,12 +48,6 @@ class ITBOFFINS_IMAGE_SCOUT_Frontend {
 	 */
 	private $base_path = '';
 
-	/**
-	 * Output buffer level opened by whole-page mode.
-	 *
-	 * @var int
-	 */
-	private $buffer_level = 0;
 
 	/**
 	 * Register output filters.
@@ -74,44 +66,10 @@ class ITBOFFINS_IMAGE_SCOUT_Frontend {
 			return;
 		}
 
-		if ( ITBOFFINS_IMAGE_SCOUT_Settings::get( 'full_page_webp' ) ) {
-			// Whole-page mode: buffer the full response and rewrite everything.
-			add_action( 'template_redirect', array( $this, 'start_buffer' ), 1 );
-		} else {
-			// Content mode: just the standard image-bearing filters.
-			add_filter( 'the_content', array( $this, 'filter_html' ), 20 );
-			add_filter( 'post_thumbnail_html', array( $this, 'filter_html' ), 20 );
-			add_filter( 'wp_get_attachment_image', array( $this, 'filter_html' ), 20 );
-			add_filter( 'widget_text', array( $this, 'filter_html' ), 20 );
-		}
-	}
-
-	/**
-	 * Begin buffering the whole page (whole-page mode only).
-	 */
-	public function start_buffer() {
-		if ( is_feed() || is_embed() || is_preview() ) {
-			return;
-		}
-
-		$this->buffer_level = ob_get_level() + 1;
-		ob_start( array( $this, 'filter_html' ) );
-		add_action( 'shutdown', array( $this, 'end_buffer' ), 0 );
-	}
-
-	/**
-	 * Close the whole-page buffer opened by start_buffer().
-	 */
-	public function end_buffer() {
-		if ( 0 === $this->buffer_level ) {
-			return;
-		}
-
-		if ( ob_get_level() === $this->buffer_level ) {
-			ob_end_flush();
-		}
-
-		$this->buffer_level = 0;
+		add_filter( 'the_content', array( $this, 'filter_html' ), 20 );
+		add_filter( 'post_thumbnail_html', array( $this, 'filter_html' ), 20 );
+		add_filter( 'wp_get_attachment_image', array( $this, 'filter_html' ), 20 );
+		add_filter( 'widget_text', array( $this, 'filter_html' ), 20 );
 	}
 
 	/**

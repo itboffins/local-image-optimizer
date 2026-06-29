@@ -26,7 +26,6 @@ class ITBOFFINS_IMAGE_SCOUT_Settings {
 			'webp_quality'  => 80,   // 40-100, WebP encode quality.
 			'auto_optimize' => 1,    // Optimise new uploads automatically.
 			'serve_webp'    => 1,    // Swap <img> for <picture> on the front end.
-			'full_page_webp' => 0,   // Rewrite the whole page (catches page builders).
 			'keep_backup'   => 0,    // Keep originals only when explicitly enabled.
 			'backup_dir'    => self::default_backup_dir(),
 		);
@@ -136,7 +135,6 @@ class ITBOFFINS_IMAGE_SCOUT_Settings {
 		$out['webp_enabled']   = empty( $input['webp_enabled'] ) ? 0 : 1;
 		$out['auto_optimize']  = empty( $input['auto_optimize'] ) ? 0 : 1;
 		$out['serve_webp']     = empty( $input['serve_webp'] ) ? 0 : 1;
-		$out['full_page_webp'] = empty( $input['full_page_webp'] ) ? 0 : 1;
 		$out['keep_backup']    = empty( $input['keep_backup'] ) ? 0 : 1;
 		$out['backup_dir']     = self::sanitize_backup_dir( isset( $current['backup_dir'] ) ? $current['backup_dir'] : $defaults['backup_dir'] );
 
