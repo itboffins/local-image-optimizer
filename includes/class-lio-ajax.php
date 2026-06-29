@@ -119,7 +119,8 @@ class LIO_Ajax {
 	public function optimize() {
 		$this->guard_nonce();
 
-		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_nonce().
+		$id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimizer' ) ) );
 		}
@@ -156,7 +157,8 @@ class LIO_Ajax {
 	public function restore() {
 		$this->guard_nonce();
 
-		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_nonce().
+		$id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimizer' ) ) );
 		}
@@ -192,15 +194,15 @@ class LIO_Ajax {
 	public function scan_batch() {
 		$this->guard_site_action();
 
-		// Give the batch room, but the scanner's own wall-clock budget is the
-		// real limit so we never run away.
-		@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPressVIPMinimum.Performance.RemoteRequestTimeout.set_time_limit
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'image' );
 		}
 
-		$cursor     = isset( $_POST['cursor'] ) ? sanitize_text_field( wp_unslash( $_POST['cursor'] ) ) : '';
-		$batch      = isset( $_POST['batch'] ) ? (int) $_POST['batch'] : 15;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_site_action().
+		$cursor = isset( $_POST['cursor'] ) ? sanitize_text_field( wp_unslash( $_POST['cursor'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_site_action().
+		$batch = isset( $_POST['batch'] ) ? absint( wp_unslash( $_POST['batch'] ) ) : 15;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_site_action().
 		$recompress = ! empty( $_POST['recompress'] );
 
 		$scanner = new LIO_Scanner( $this->optimizer );

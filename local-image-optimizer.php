@@ -90,8 +90,6 @@ final class Local_Image_Optimizer {
 			( new LIO_Admin( $this->optimizer ) )->init();
 			( new LIO_Ajax( $this->optimizer ) )->init();
 		}
-
-		load_plugin_textdomain( 'local-image-optimizer', false, dirname( LIO_BASENAME ) . '/languages' );
 	}
 }
 

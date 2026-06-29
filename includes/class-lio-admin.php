@@ -124,6 +124,7 @@ class LIO_Admin {
 					'failed'         => __( 'Failed', 'local-image-optimizer' ),
 					'done'           => __( 'All done!', 'local-image-optimizer' ),
 					'fetching'       => __( 'Fetching image list…', 'local-image-optimizer' ),
+					/* translators: %d: Number of images found. */
 					'found'          => __( 'Found %d images.', 'local-image-optimizer' ),
 					'saved'          => __( 'saved', 'local-image-optimizer' ),
 					'webpCreated'    => __( 'WebP created', 'local-image-optimizer' ),
@@ -164,12 +165,12 @@ class LIO_Admin {
 					</tr>
 					<tr>
 						<th><?php esc_html_e( 'Image compression', 'local-image-optimizer' ); ?></th>
-						<td><?php echo $this->badge( $caps['can_compress'] ); ?></td>
+						<td><?php echo wp_kses_post( $this->badge( $caps['can_compress'] ) ); ?></td>
 					</tr>
 					<tr>
 						<th><?php esc_html_e( 'WebP conversion', 'local-image-optimizer' ); ?></th>
 						<td>
-							<?php echo $this->badge( $caps['can_webp'] ); ?>
+							<?php echo wp_kses_post( $this->badge( $caps['can_webp'] ) ); ?>
 							<?php if ( ! $caps['can_webp'] ) : ?>
 								<span class="lio-hint"><?php esc_html_e( 'Your server\'s image library was built without WebP support. Images will still be compressed; WebP files just won\'t be generated.', 'local-image-optimizer' ); ?></span>
 							<?php endif; ?>
@@ -177,11 +178,11 @@ class LIO_Admin {
 					</tr>
 					<tr>
 						<th>GD</th>
-						<td><?php echo $this->badge( $caps['gd'] ); ?> <?php echo $caps['gd'] ? $this->badge( $caps['gd_webp'], __( 'WebP', 'local-image-optimizer' ) ) : ''; ?></td>
+						<td><?php echo wp_kses_post( $this->badge( $caps['gd'] ) ); ?> <?php echo $caps['gd'] ? wp_kses_post( $this->badge( $caps['gd_webp'], esc_html__( 'WebP', 'local-image-optimizer' ) ) ) : ''; ?></td>
 					</tr>
 					<tr>
 						<th>Imagick</th>
-						<td><?php echo $this->badge( $caps['imagick'] ); ?> <?php echo $caps['imagick'] ? $this->badge( $caps['imagick_webp'], __( 'WebP', 'local-image-optimizer' ) ) : ''; ?></td>
+						<td><?php echo wp_kses_post( $this->badge( $caps['imagick'] ) ); ?> <?php echo $caps['imagick'] ? wp_kses_post( $this->badge( $caps['imagick_webp'], esc_html__( 'WebP', 'local-image-optimizer' ) ) ) : ''; ?></td>
 					</tr>
 				</table>
 			</div>

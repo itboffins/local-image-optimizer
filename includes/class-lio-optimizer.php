@@ -260,9 +260,11 @@ class LIO_Optimizer {
 		if ( ! is_wp_error( $editor ) ) {
 			$editor->set_quality( $webp_quality );
 			$saved = $editor->save( $webp, 'image/webp' );
-			// Some editors normalise the filename; move it where we expect.
+			// Some editors normalise the filename; copy it where we expect.
 			if ( ! is_wp_error( $saved ) && ! empty( $saved['path'] ) && $saved['path'] !== $webp ) {
-				@rename( $saved['path'], $webp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				if ( copy( $saved['path'], $webp ) ) {
+					wp_delete_file( $saved['path'] );
+				}
 			}
 		}
 
