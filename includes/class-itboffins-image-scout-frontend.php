@@ -13,7 +13,7 @@
  *    <img>, which also catches images output by page builders (Elementor, Divi)
  *    and theme templates that never pass through the content filters.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Rewrites image markup on output.
  */
-class LIO_Frontend {
+class ITBOFFINS_IMAGE_SCOUT_Frontend {
 
 	/**
 	 * Uploads base URL, e.g. https://www.example.com/wp-content/uploads.
@@ -51,10 +51,17 @@ class LIO_Frontend {
 	private $base_path = '';
 
 	/**
+	 * Output buffer level opened by whole-page mode.
+	 *
+	 * @var int
+	 */
+	private $buffer_level = 0;
+
+	/**
 	 * Register output filters.
 	 */
 	public function init() {
-		if ( is_admin() || ! LIO_Settings::get( 'serve_webp' ) ) {
+		if ( is_admin() || ! ITBOFFINS_IMAGE_SCOUT_Settings::get( 'serve_webp' ) ) {
 			return;
 		}
 
@@ -67,7 +74,7 @@ class LIO_Frontend {
 			return;
 		}
 
-		if ( LIO_Settings::get( 'full_page_webp' ) ) {
+		if ( ITBOFFINS_IMAGE_SCOUT_Settings::get( 'full_page_webp' ) ) {
 			// Whole-page mode: buffer the full response and rewrite everything.
 			add_action( 'template_redirect', array( $this, 'start_buffer' ), 1 );
 		} else {
@@ -86,7 +93,25 @@ class LIO_Frontend {
 		if ( is_feed() || is_embed() || is_preview() ) {
 			return;
 		}
+
+		$this->buffer_level = ob_get_level() + 1;
 		ob_start( array( $this, 'filter_html' ) );
+		add_action( 'shutdown', array( $this, 'end_buffer' ), 0 );
+	}
+
+	/**
+	 * Close the whole-page buffer opened by start_buffer().
+	 */
+	public function end_buffer() {
+		if ( 0 === $this->buffer_level ) {
+			return;
+		}
+
+		if ( ob_get_level() === $this->buffer_level ) {
+			ob_end_flush();
+		}
+
+		$this->buffer_level = 0;
 	}
 
 	/**

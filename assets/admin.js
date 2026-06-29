@@ -1,8 +1,8 @@
-/* Local Image Optimiser — admin JS (vanilla, no jQuery dependency) */
+/* ITBoffins Image Scout — admin JS (vanilla, no jQuery dependency) */
 ( function () {
 	'use strict';
 
-	var i18n = ( window.LIO && window.LIO.i18n ) || {};
+	var i18n = ( window.ITBoffinsImageScout && window.ITBoffinsImageScout.i18n ) || {};
 
 	/**
 	 * POST to admin-ajax and return a Promise of the parsed JSON.
@@ -10,12 +10,12 @@
 	function post( action, data ) {
 		var body = new URLSearchParams();
 		body.append( 'action', action );
-		body.append( 'nonce', window.LIO.nonce );
+		body.append( 'nonce', window.ITBoffinsImageScout.nonce );
 		Object.keys( data || {} ).forEach( function ( k ) {
 			body.append( k, data[ k ] );
 		} );
 
-		return fetch( window.LIO.ajaxUrl, {
+		return fetch( window.ITBoffinsImageScout.ajaxUrl, {
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -42,18 +42,18 @@
 	 * Bulk optimiser screen
 	 * ------------------------------------------------------------------ */
 	function initBulk() {
-		var startBtn = document.getElementById( 'lio-bulk-start' );
+		var startBtn = document.getElementById( 'itboffins-image-scout-bulk-start' );
 		if ( ! startBtn ) {
 			return;
 		}
 
-		var stopBtn = document.getElementById( 'lio-bulk-stop' );
-		var progress = document.getElementById( 'lio-progress' );
-		var barFill = document.getElementById( 'lio-bar-fill' );
-		var currentEl = document.getElementById( 'lio-current' );
-		var progressText = document.getElementById( 'lio-progress-text' );
-		var savingsEl = document.getElementById( 'lio-savings' );
-		var logEl = document.getElementById( 'lio-log' );
+		var stopBtn = document.getElementById( 'itboffins-image-scout-bulk-stop' );
+		var progress = document.getElementById( 'itboffins-image-scout-progress' );
+		var barFill = document.getElementById( 'itboffins-image-scout-bar-fill' );
+		var currentEl = document.getElementById( 'itboffins-image-scout-current' );
+		var progressText = document.getElementById( 'itboffins-image-scout-progress-text' );
+		var savingsEl = document.getElementById( 'itboffins-image-scout-savings' );
+		var logEl = document.getElementById( 'itboffins-image-scout-log' );
 
 		var queue = [];
 		var total = 0;
@@ -100,7 +100,7 @@
 			// Show the filename currently being optimised.
 			currentEl.textContent = ( i18n.optimising || 'Optimising…' ) + ' ' + name;
 
-			post( 'lio_optimize', { id: item.id } )
+			post( 'itboffins_image_scout_optimize', { id: item.id } )
 				.then( function ( res ) {
 					done++;
 					if ( res && res.success ) {
@@ -134,7 +134,7 @@
 			stopBtn.style.display = '';
 			currentEl.textContent = i18n.fetching || 'Fetching image list…';
 
-			post( 'lio_get_ids', {} ).then( function ( res ) {
+			post( 'itboffins_image_scout_get_ids', {} ).then( function ( res ) {
 				if ( ! res || ! res.success || ! res.data.total ) {
 					currentEl.textContent = '';
 					log( i18n.noImages || 'No images found.', 'err' );
@@ -163,38 +163,38 @@
 	 * ------------------------------------------------------------------ */
 	function initMediaButtons() {
 		document.addEventListener( 'click', function ( e ) {
-			var optBtn = e.target.closest( '.lio-optimize-btn' );
-			var resBtn = e.target.closest( '.lio-restore-btn' );
+			var optBtn = e.target.closest( '.itboffins-image-scout-optimize-btn' );
+			var resBtn = e.target.closest( '.itboffins-image-scout-restore-btn' );
 
 			if ( optBtn ) {
 				e.preventDefault();
-				handleSingle( optBtn, 'lio_optimize', i18n.optimising );
+				handleSingle( optBtn, 'itboffins_image_scout_optimize', i18n.optimising );
 			} else if ( resBtn ) {
 				e.preventDefault();
 				if ( ! window.confirm( i18n.confirmRestore || 'Restore original?' ) ) {
 					return;
 				}
-				handleSingle( resBtn, 'lio_restore', i18n.restoring );
+				handleSingle( resBtn, 'itboffins_image_scout_restore', i18n.restoring );
 			}
 		} );
 	}
 
 	function handleSingle( btn, action, busyText ) {
-		var cell = btn.closest( '.lio-cell' );
-		var msg = cell ? cell.querySelector( '.lio-msg' ) : null;
+		var cell = btn.closest( '.itboffins-image-scout-cell' );
+		var msg = cell ? cell.querySelector( '.itboffins-image-scout-msg' ) : null;
 		var id = btn.getAttribute( 'data-id' );
 
 		btn.disabled = true;
 		if ( msg ) {
-			msg.className = 'lio-msg';
+			msg.className = 'itboffins-image-scout-msg';
 			msg.textContent = busyText || '…';
 		}
 
 		post( action, { id: id } ).then( function ( res ) {
 			if ( res && res.success ) {
 				if ( msg ) {
-					msg.className = 'lio-msg ok';
-					if ( action === 'lio_optimize' ) {
+					msg.className = 'itboffins-image-scout-msg ok';
+					if ( action === 'itboffins_image_scout_optimize' ) {
 						msg.textContent =
 							( i18n.optimised || 'Optimised' ) +
 							' · ' + res.data.human + ' (' + res.data.percent + '%)';
@@ -209,7 +209,7 @@
 			} else {
 				btn.disabled = false;
 				if ( msg ) {
-					msg.className = 'lio-msg err';
+					msg.className = 'itboffins-image-scout-msg err';
 					msg.textContent =
 						( i18n.failed || 'Failed' ) +
 						': ' + ( res && res.data ? res.data.message : '' );
@@ -218,7 +218,7 @@
 		} ).catch( function () {
 			btn.disabled = false;
 			if ( msg ) {
-				msg.className = 'lio-msg err';
+				msg.className = 'itboffins-image-scout-msg err';
 				msg.textContent = i18n.failed || 'Failed';
 			}
 		} );
@@ -228,19 +228,19 @@
 	 * Uploads-folder scan (whole /uploads, including non-library files)
 	 * ------------------------------------------------------------------ */
 	function initScan() {
-		var startBtn = document.getElementById( 'lio-scan-start' );
+		var startBtn = document.getElementById( 'itboffins-image-scout-scan-start' );
 		if ( ! startBtn ) {
 			return;
 		}
 
-		var stopBtn = document.getElementById( 'lio-scan-stop' );
-		var progress = document.getElementById( 'lio-scan-progress' );
-		var barFill = document.getElementById( 'lio-scan-bar-fill' );
-		var currentEl = document.getElementById( 'lio-scan-current' );
-		var textEl = document.getElementById( 'lio-scan-text' );
-		var tallyEl = document.getElementById( 'lio-scan-savings' );
-		var logEl = document.getElementById( 'lio-scan-log' );
-		var recompressEl = document.getElementById( 'lio-scan-recompress' );
+		var stopBtn = document.getElementById( 'itboffins-image-scout-scan-stop' );
+		var progress = document.getElementById( 'itboffins-image-scout-scan-progress' );
+		var barFill = document.getElementById( 'itboffins-image-scout-scan-bar-fill' );
+		var currentEl = document.getElementById( 'itboffins-image-scout-scan-current' );
+		var textEl = document.getElementById( 'itboffins-image-scout-scan-text' );
+		var tallyEl = document.getElementById( 'itboffins-image-scout-scan-savings' );
+		var logEl = document.getElementById( 'itboffins-image-scout-scan-log' );
+		var recompressEl = document.getElementById( 'itboffins-image-scout-scan-recompress' );
 
 		var cursor = '';
 		var total = null;
@@ -266,11 +266,11 @@
 			if ( total ) {
 				var pct = Math.min( 100, Math.round( ( processed / total ) * 100 ) );
 				barFill.style.width = pct + '%';
-				barFill.classList.remove( 'lio-indeterminate' );
+				barFill.classList.remove( 'itboffins-image-scout-indeterminate' );
 				textEl.textContent = processed + ' / ' + total + ' (' + pct + '%)';
 			} else {
 				barFill.style.width = '100%';
-				barFill.classList.add( 'lio-indeterminate' );
+				barFill.classList.add( 'itboffins-image-scout-indeterminate' );
 				textEl.textContent = processed + ' ' + ( i18n.scanned || 'scanned' );
 			}
 			var t = made + ' ' + ( i18n.createdWord || 'WebP created' ) +
@@ -285,7 +285,7 @@
 			startBtn.disabled = false;
 			stopBtn.style.display = 'none';
 			currentEl.textContent = '';
-			barFill.classList.remove( 'lio-indeterminate' );
+			barFill.classList.remove( 'itboffins-image-scout-indeterminate' );
 			log( i18n.scanDone || 'Scan complete.', 'ok' );
 		}
 
@@ -295,7 +295,7 @@
 				return;
 			}
 			var startCursor = cursor;
-			post( 'lio_scan_batch', {
+			post( 'itboffins_image_scout_scan_batch', {
 				cursor: cursor,
 				batch: 40,
 				recompress: ( recompressEl && recompressEl.checked ) ? 1 : 0
@@ -375,7 +375,7 @@
 			stopBtn.style.display = '';
 			currentEl.textContent = i18n.scanning || 'Scanning…';
 
-			post( 'lio_scan_count', {} ).then( function ( res ) {
+			post( 'itboffins_image_scout_scan_count', {} ).then( function ( res ) {
 				total = ( res && res.success && res.data.total ) ? res.data.total : null;
 				update();
 				batch();

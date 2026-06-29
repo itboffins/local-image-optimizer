@@ -6,14 +6,14 @@
  * NOT delete generated WebP files or the originals backup folder, so the site
  * keeps working and nothing irreversible happens on uninstall.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-delete_option( 'lio_settings' );
+delete_option( 'itboffins_image_scout_settings' );
 
 // Remove the per-attachment stats meta.
-delete_post_meta_by_key( '_lio_stats' );
+delete_post_meta_by_key( '_itboffins_image_scout_stats' );

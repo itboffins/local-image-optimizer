@@ -2,5 +2,5 @@
 /**
  * Silence is golden.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */

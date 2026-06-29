@@ -2,7 +2,7 @@
 /**
  * Settings storage and defaults.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Thin wrapper around the single options array.
  */
-class LIO_Settings {
+class ITBOFFINS_IMAGE_SCOUT_Settings {
 
 	/**
 	 * Default settings.
@@ -47,7 +47,7 @@ class LIO_Settings {
 	 * @return string[]
 	 */
 	public static function backup_dir_names() {
-		return array_values( array_unique( array_filter( array( self::backup_dir_name(), LIO_BACKUP_DIR ) ) ) );
+		return array_values( array_unique( array_filter( array( self::backup_dir_name(), ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR ) ) ) );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class LIO_Settings {
 	 */
 	private static function sanitize_backup_dir( $dir ) {
 		$dir     = sanitize_file_name( (string) $dir );
-		$pattern = '/^' . preg_quote( LIO_BACKUP_DIR, '/' ) . '-[a-f0-9]{12}$/';
+		$pattern = '/^' . preg_quote( ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR, '/' ) . '-[a-f0-9]{12}$/';
 		return preg_match( $pattern, $dir ) ? $dir : self::default_backup_dir();
 	}
 
@@ -81,7 +81,7 @@ class LIO_Settings {
 
 		$base = defined( 'ABSPATH' ) ? ABSPATH : __DIR__;
 		$hash = substr( hash( 'sha256', $salt . '|' . $site . '|' . $base ), 0, 12 );
-		return LIO_BACKUP_DIR . '-' . $hash;
+		return ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR . '-' . $hash;
 	}
 
 	/**
@@ -90,7 +90,7 @@ class LIO_Settings {
 	 * @return array
 	 */
 	public static function all() {
-		$saved = get_option( LIO_OPTION, array() );
+		$saved = get_option( ITBOFFINS_IMAGE_SCOUT_OPTION, array() );
 		if ( ! is_array( $saved ) ) {
 			$saved = array();
 		}
@@ -121,7 +121,7 @@ class LIO_Settings {
 	public static function sanitize( $input ) {
 		$input    = is_array( $input ) ? $input : array();
 		$defaults = self::defaults();
-		$current  = get_option( LIO_OPTION, array() );
+		$current  = get_option( ITBOFFINS_IMAGE_SCOUT_OPTION, array() );
 		$current  = is_array( $current ) ? $current : array();
 		$out      = array();
 

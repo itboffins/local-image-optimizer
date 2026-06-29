@@ -6,7 +6,7 @@
  * gated behind a runtime capability check rather than assuming a binary or
  * extension is present.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Capability probe.
  */
-class LIO_Capabilities {
+class ITBOFFINS_IMAGE_SCOUT_Capabilities {
 
 	/**
 	 * Cached result for this request.
@@ -62,7 +62,7 @@ class LIO_Capabilities {
 		$can_webp     = (bool) wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) );
 
 		// Work out which implementation WordPress prefers, for display only.
-		$engine = __( 'None available', 'local-image-optimiser' );
+		$engine = __( 'None available', 'itboffins-image-scout' );
 		$chosen = function_exists( '_wp_image_editor_choose' ) ? _wp_image_editor_choose() : false;
 		if ( 'WP_Image_Editor_Imagick' === $chosen ) {
 			$engine = 'Imagick';

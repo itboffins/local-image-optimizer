@@ -7,9 +7,9 @@
  * deterministic (sorted), memory-safe (a PHP generator — one directory in memory
  * at a time), resumable (a cursor = relative path of the last processed file),
  * and bounded per request (a file limit and a wall-clock budget). Encoding reuses
- * LIO_Optimizer's validated, palette-safe pipeline.
+ * ITBOFFINS_IMAGE_SCOUT_Optimizer's validated, palette-safe pipeline.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,18 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Folder scanner.
  */
-class LIO_Scanner {
+class ITBOFFINS_IMAGE_SCOUT_Scanner {
 
 	/**
 	 * Transient key recording the file currently being encoded, so a file that
 	 * hard-crashes a worker can be skipped when the batch is retried.
 	 */
-	const POISON = 'lio_scan_poison';
+	const POISON = 'itboffins_image_scout_scan_poison';
 
 	/**
 	 * Optimizer.
 	 *
-	 * @var LIO_Optimizer
+	 * @var ITBOFFINS_IMAGE_SCOUT_Optimizer
 	 */
 	private $optimizer;
 
@@ -51,9 +51,9 @@ class LIO_Scanner {
 	/**
 	 * Constructor.
 	 *
-	 * @param LIO_Optimizer $optimizer Optimizer.
+	 * @param ITBOFFINS_IMAGE_SCOUT_Optimizer $optimizer Optimizer.
 	 */
-	public function __construct( LIO_Optimizer $optimizer ) {
+	public function __construct( ITBOFFINS_IMAGE_SCOUT_Optimizer $optimizer ) {
 		$this->optimizer = $optimizer;
 		$this->base_raw  = untrailingslashit( $optimizer->uploads_basedir() );
 		$this->base      = trailingslashit( wp_normalize_path( $this->base_raw ) );
@@ -172,7 +172,7 @@ class LIO_Scanner {
 					$result = $this->optimizer->webpify_path( $abs );
 					if ( is_wp_error( $result ) ) {
 						$skipped++;
-						$reason  = ( 'lio_encode_failed' === $result->get_error_code() ) ? 'no_gain' : 'skipped';
+						$reason  = ( 'itboffins_image_scout_encode_failed' === $result->get_error_code() ) ? 'no_gain' : 'skipped';
 						$items[] = array(
 							'name'   => $this->short( $rel ),
 							'made'   => false,
@@ -250,7 +250,7 @@ class LIO_Scanner {
 				$norm = trailingslashit( wp_normalize_path( $path ) );
 
 				// Prune backup subtrees entirely, including legacy backup folders.
-				foreach ( LIO_Settings::backup_dir_names() as $backup_dir ) {
+				foreach ( ITBOFFINS_IMAGE_SCOUT_Settings::backup_dir_names() as $backup_dir ) {
 					if ( false !== strpos( $norm, '/' . $backup_dir . '/' ) ) {
 						continue 2;
 					}

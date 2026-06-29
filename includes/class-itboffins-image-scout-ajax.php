@@ -2,7 +2,7 @@
 /**
  * AJAX endpoints for single + bulk optimization and restore.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,21 +12,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * AJAX handlers.
  */
-class LIO_Ajax {
+class ITBOFFINS_IMAGE_SCOUT_Ajax {
 
 	/**
 	 * Optimizer instance.
 	 *
-	 * @var LIO_Optimizer
+	 * @var ITBOFFINS_IMAGE_SCOUT_Optimizer
 	 */
 	private $optimizer;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param LIO_Optimizer $optimizer Optimizer.
+	 * @param ITBOFFINS_IMAGE_SCOUT_Optimizer $optimizer Optimizer.
 	 */
-	public function __construct( LIO_Optimizer $optimizer ) {
+	public function __construct( ITBOFFINS_IMAGE_SCOUT_Optimizer $optimizer ) {
 		$this->optimizer = $optimizer;
 	}
 
@@ -34,19 +34,19 @@ class LIO_Ajax {
 	 * Register AJAX actions.
 	 */
 	public function init() {
-		add_action( 'wp_ajax_lio_get_ids', array( $this, 'get_ids' ) );
-		add_action( 'wp_ajax_lio_optimize', array( $this, 'optimize' ) );
-		add_action( 'wp_ajax_lio_restore', array( $this, 'restore' ) );
-		add_action( 'wp_ajax_lio_scan_count', array( $this, 'scan_count' ) );
-		add_action( 'wp_ajax_lio_scan_batch', array( $this, 'scan_batch' ) );
+		add_action( 'wp_ajax_itboffins_image_scout_get_ids', array( $this, 'get_ids' ) );
+		add_action( 'wp_ajax_itboffins_image_scout_optimize', array( $this, 'optimize' ) );
+		add_action( 'wp_ajax_itboffins_image_scout_restore', array( $this, 'restore' ) );
+		add_action( 'wp_ajax_itboffins_image_scout_scan_count', array( $this, 'scan_count' ) );
+		add_action( 'wp_ajax_itboffins_image_scout_scan_batch', array( $this, 'scan_batch' ) );
 	}
 
 	/**
 	 * Shared nonce check for every AJAX endpoint.
 	 */
 	private function guard_nonce() {
-		if ( ! check_ajax_referer( 'lio_ajax', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed. Please reload and try again.', 'local-image-optimiser' ) ), 403 );
+		if ( ! check_ajax_referer( 'itboffins_image_scout_ajax', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed. Please reload and try again.', 'itboffins-image-scout' ) ), 403 );
 		}
 	}
 
@@ -56,7 +56,7 @@ class LIO_Ajax {
 	private function guard_site_action() {
 		$this->guard_nonce();
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission to do this.', 'local-image-optimiser' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do this.', 'itboffins-image-scout' ) ), 403 );
 		}
 	}
 
@@ -68,11 +68,11 @@ class LIO_Ajax {
 	private function guard_attachment_action( $attachment_id ) {
 		$post = get_post( $attachment_id );
 		if ( ! $post || 'attachment' !== $post->post_type ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimiser' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'itboffins-image-scout' ) ) );
 		}
 
 		if ( ! current_user_can( 'upload_files' ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission to edit this image.', 'local-image-optimiser' ) ), 403 );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to edit this image.', 'itboffins-image-scout' ) ), 403 );
 		}
 	}
 
@@ -122,7 +122,7 @@ class LIO_Ajax {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_nonce().
 		$id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimiser' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'itboffins-image-scout' ) ) );
 		}
 		$this->guard_attachment_action( $id );
 
@@ -160,7 +160,7 @@ class LIO_Ajax {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_nonce().
 		$id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
 		if ( ! $id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'local-image-optimiser' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid image ID.', 'itboffins-image-scout' ) ) );
 		}
 		$this->guard_attachment_action( $id );
 
@@ -184,7 +184,7 @@ class LIO_Ajax {
 	public function scan_count() {
 		$this->guard_site_action();
 
-		$scanner = new LIO_Scanner( $this->optimizer );
+		$scanner = new ITBOFFINS_IMAGE_SCOUT_Scanner( $this->optimizer );
 		wp_send_json_success( $scanner->count_eligible() );
 	}
 
@@ -205,7 +205,7 @@ class LIO_Ajax {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above by guard_site_action().
 		$recompress = ! empty( $_POST['recompress'] );
 
-		$scanner = new LIO_Scanner( $this->optimizer );
+		$scanner = new ITBOFFINS_IMAGE_SCOUT_Scanner( $this->optimizer );
 		$result  = $scanner->run_batch( $cursor, $batch, 20, $recompress );
 
 		wp_send_json_success( $result );

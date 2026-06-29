@@ -7,7 +7,7 @@
  * exec(), never shell out to cwebp/jpegoptim, and never talk to an external
  * API — so it runs anywhere WordPress runs.
  *
- * @package Local_Image_Optimizer
+ * @package ITBoffins_Image_Scout
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Optimizer.
  */
-class LIO_Optimizer {
+class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 
 	/**
 	 * Re-entrancy guard so regenerating metadata during a restore does not
@@ -38,7 +38,7 @@ class LIO_Optimizer {
 		if ( self::$busy ) {
 			return $metadata;
 		}
-		if ( ! LIO_Settings::get( 'auto_optimize' ) ) {
+		if ( ! ITBOFFINS_IMAGE_SCOUT_Settings::get( 'auto_optimize' ) ) {
 			return $metadata;
 		}
 		if ( ! $this->is_supported_attachment( $attachment_id ) ) {
@@ -59,21 +59,21 @@ class LIO_Optimizer {
 	 * @return array|WP_Error Stats on success.
 	 */
 	public function optimize_attachment( $attachment_id, $metadata = null ) {
-		$caps = LIO_Capabilities::get();
+		$caps = ITBOFFINS_IMAGE_SCOUT_Capabilities::get();
 		if ( ! $caps['can_compress'] ) {
-			return new WP_Error( 'lio_no_editor', __( 'No usable image library (GD or Imagick) was found on this server.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_no_editor', __( 'No usable image library (GD or Imagick) was found on this server.', 'itboffins-image-scout' ) );
 		}
 		if ( ! $this->is_supported_attachment( $attachment_id ) ) {
-			return new WP_Error( 'lio_unsupported', __( 'This attachment is not a supported image type.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_unsupported', __( 'This attachment is not a supported image type.', 'itboffins-image-scout' ) );
 		}
 
 		$main_file = get_attached_file( $attachment_id );
 		if ( ! $main_file || ! file_exists( $main_file ) ) {
-			return new WP_Error( 'lio_missing', __( 'The image file could not be found on disk.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found on disk.', 'itboffins-image-scout' ) );
 		}
 
 		// Back up the canonical original once, before we ever rewrite it.
-		if ( LIO_Settings::get( 'keep_backup' ) ) {
+		if ( ITBOFFINS_IMAGE_SCOUT_Settings::get( 'keep_backup' ) ) {
 			$this->backup( $main_file );
 		}
 
@@ -82,9 +82,9 @@ class LIO_Optimizer {
 		$bytes_after  = 0;
 		$webp_made    = 0;
 
-		$jpeg_quality = (int) LIO_Settings::get( 'jpeg_quality' );
-		$webp_enabled = (bool) LIO_Settings::get( 'webp_enabled' ) && $caps['can_webp'];
-		$webp_quality = (int) LIO_Settings::get( 'webp_quality' );
+		$jpeg_quality = (int) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'jpeg_quality' );
+		$webp_enabled = (bool) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_enabled' ) && $caps['can_webp'];
+		$webp_quality = (int) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_quality' );
 
 		foreach ( $files as $file ) {
 			clearstatcache( true, $file );
@@ -113,7 +113,7 @@ class LIO_Optimizer {
 			'time'         => time(),
 		);
 
-		update_post_meta( $attachment_id, LIO_META, $stats );
+		update_post_meta( $attachment_id, ITBOFFINS_IMAGE_SCOUT_META, $stats );
 
 		return $stats;
 	}
@@ -127,15 +127,15 @@ class LIO_Optimizer {
 	public function restore_attachment( $attachment_id ) {
 		$main_file = get_attached_file( $attachment_id );
 		if ( ! $main_file ) {
-			return new WP_Error( 'lio_missing', __( 'The image file could not be found.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found.', 'itboffins-image-scout' ) );
 		}
 
 		$backup = $this->backup_path( $main_file );
 		if ( ! $backup || ! file_exists( $backup ) ) {
-			$backup = $this->backup_path( $main_file, LIO_BACKUP_DIR );
+			$backup = $this->backup_path( $main_file, ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR );
 		}
 		if ( ! $backup || ! file_exists( $backup ) ) {
-			return new WP_Error( 'lio_no_backup', __( 'No backup of the original is available to restore.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_no_backup', __( 'No backup of the original is available to restore.', 'itboffins-image-scout' ) );
 		}
 
 		// Remove WebP siblings for every current file.
@@ -156,7 +156,7 @@ class LIO_Optimizer {
 		}
 		self::$busy = false;
 
-		delete_post_meta( $attachment_id, LIO_META );
+		delete_post_meta( $attachment_id, ITBOFFINS_IMAGE_SCOUT_META );
 
 		return true;
 	}
@@ -173,7 +173,7 @@ class LIO_Optimizer {
 			return false;
 		}
 
-		foreach ( array( null, LIO_BACKUP_DIR ) as $dir_name ) {
+		foreach ( array( null, ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR ) as $dir_name ) {
 			$backup = $this->backup_path( $main_file, $dir_name );
 			if ( $backup && file_exists( $backup ) ) {
 				return true;
@@ -210,7 +210,7 @@ class LIO_Optimizer {
 
 		$info = pathinfo( $file );
 		$ext  = isset( $info['extension'] ) ? '.' . $info['extension'] : '';
-		$tmp  = $info['dirname'] . '/' . $info['filename'] . '-lio-tmp' . $ext;
+		$tmp  = $info['dirname'] . '/' . $info['filename'] . '-itboffins-image-scout-tmp' . $ext;
 
 		$saved = $editor->save( $tmp, $mime );
 		if ( is_wp_error( $saved ) || empty( $saved['path'] ) || ! file_exists( $saved['path'] ) ) {
@@ -482,7 +482,7 @@ class LIO_Optimizer {
 	 */
 	private function backup_root( $dir_name = null ) {
 		$uploads  = wp_get_upload_dir();
-		$dir_name = null === $dir_name ? LIO_Settings::backup_dir_name() : sanitize_file_name( $dir_name );
+		$dir_name = null === $dir_name ? ITBOFFINS_IMAGE_SCOUT_Settings::backup_dir_name() : sanitize_file_name( $dir_name );
 		return trailingslashit( $uploads['basedir'] ) . $dir_name;
 	}
 
@@ -500,7 +500,7 @@ class LIO_Optimizer {
 
 		$files = array(
 			'index.php'  => "<?php\n// Silence is golden.\n",
-			'.htaccess'  => "# Local Image Optimizer backup protection\n"
+			'.htaccess'  => "# ITBoffins Image Scout backup protection\n"
 				. "<IfModule mod_authz_core.c>\n"
 				. "Require all denied\n"
 				. "</IfModule>\n"
@@ -570,7 +570,7 @@ class LIO_Optimizer {
 	public function should_skip_path( $file ) {
 		$normalized = wp_normalize_path( $file );
 
-		foreach ( LIO_Settings::backup_dir_names() as $backup_dir ) {
+		foreach ( ITBOFFINS_IMAGE_SCOUT_Settings::backup_dir_names() as $backup_dir ) {
 			if ( false !== strpos( $normalized, '/' . $backup_dir . '/' ) ) {
 				return 'backup';
 			}
@@ -591,32 +591,32 @@ class LIO_Optimizer {
 	 * @return true|WP_Error
 	 */
 	public function webpify_path( $file, $webp_quality = null ) {
-		$caps = LIO_Capabilities::get();
-		if ( ! $caps['can_webp'] || ! LIO_Settings::get( 'webp_enabled' ) ) {
-			return new WP_Error( 'lio_no_webp', __( 'WebP generation is unavailable or disabled.', 'local-image-optimiser' ) );
+		$caps = ITBOFFINS_IMAGE_SCOUT_Capabilities::get();
+		if ( ! $caps['can_webp'] || ! ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_enabled' ) ) {
+			return new WP_Error( 'itboffins_image_scout_no_webp', __( 'WebP generation is unavailable or disabled.', 'itboffins-image-scout' ) );
 		}
 
 		$real = realpath( $file );
 		if ( false === $real ) {
-			return new WP_Error( 'lio_missing', __( 'File not found.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'File not found.', 'itboffins-image-scout' ) );
 		}
 		if ( ! $this->is_under_uploads( $real ) ) {
-			return new WP_Error( 'lio_outside', __( 'File is outside the uploads directory.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_outside', __( 'File is outside the uploads directory.', 'itboffins-image-scout' ) );
 		}
 		$skip = $this->should_skip_path( $real );
 		if ( false !== $skip ) {
-			return new WP_Error( 'lio_skipped', $skip );
+			return new WP_Error( 'itboffins_image_scout_skipped', $skip );
 		}
 		if ( ! $this->is_valid_image( $real, array( IMAGETYPE_JPEG, IMAGETYPE_PNG ) ) ) {
-			return new WP_Error( 'lio_unreadable', __( 'File is not a readable JPEG or PNG.', 'local-image-optimiser' ) );
+			return new WP_Error( 'itboffins_image_scout_unreadable', __( 'File is not a readable JPEG or PNG.', 'itboffins-image-scout' ) );
 		}
 
-		$quality = ( null === $webp_quality ) ? (int) LIO_Settings::get( 'webp_quality' ) : (int) $webp_quality;
+		$quality = ( null === $webp_quality ) ? (int) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_quality' ) : (int) $webp_quality;
 
 		if ( $this->make_webp( $real, $quality ) ) {
 			return true;
 		}
-		return new WP_Error( 'lio_encode_failed', __( 'No smaller, valid WebP could be created for this file.', 'local-image-optimiser' ) );
+		return new WP_Error( 'itboffins_image_scout_encode_failed', __( 'No smaller, valid WebP could be created for this file.', 'itboffins-image-scout' ) );
 	}
 
 	/**
@@ -634,7 +634,7 @@ class LIO_Optimizer {
 		if ( false !== $this->should_skip_path( $real ) ) {
 			return false;
 		}
-		$quality = ( null === $jpeg_quality ) ? (int) LIO_Settings::get( 'jpeg_quality' ) : (int) $jpeg_quality;
+		$quality = ( null === $jpeg_quality ) ? (int) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'jpeg_quality' ) : (int) $jpeg_quality;
 		return $this->recompress( $real, $quality );
 	}
 

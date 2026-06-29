@@ -1,20 +1,24 @@
-=== Local Image Optimiser ===
+=== ITBoffins Image Scout ===
 Contributors: itboffins
-Tags: image optimisation, compress images, webp, performance, page speed
+Tags: image optimisation, webp, page builder, privacy, media library
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Compress your images and serve next-gen WebP using only the tools already on your server. No external API, no account, works on any host.
+Find images your Media Library misses. Compress JPEG/PNG and create WebP locally, with no API, account, or shell access.
 
 == Description ==
 
-**Local Image Optimiser** makes your WordPress site faster by compressing your images and serving modern WebP versions — using only the image libraries already installed on your server (GD or Imagick).
+**ITBoffins Image Scout** is a local image optimisation plugin for sites whose images are scattered across the Media Library, page-builder templates, theme output, and raw uploads folders.
 
 Unlike most image plugins, there is **no external service**, no API key, no monthly quota, and no account to create. Your images never leave your server. Because it relies only on PHP's built-in image tools, it works on practically **any WordPress host**, including cheap shared hosting where shell access is disabled.
+
+= The Image Scout difference =
+
+Most optimisers focus on Media Library attachments. Image Scout adds a disk-level uploads scout: it walks `/uploads` in batches, finds JPEG/PNG files that builders and themes use outside the Library, creates validated WebP siblings, and can pair that with page-wide delivery. That gives small and shared-host sites a practical no-cloud way to modernise hidden images.
 
 = What it does =
 
@@ -41,9 +45,9 @@ This plugin does not send your images or any data to any external service. All p
 
 == Installation ==
 
-1. Upload the `local-image-optimiser` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
+1. Upload the `itboffins-image-scout` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
 2. Activate the plugin.
-3. Go to **Settings → Image Optimiser** to review your server's capabilities and adjust quality settings.
+3. Go to **Settings → Image Scout** to review your server's capabilities and adjust quality settings.
 4. New uploads are optimised automatically. Administrators can compress existing images under **Media → Bulk Optimise**.
 
 == Frequently Asked Questions ==
@@ -58,7 +62,7 @@ Your server's image library was compiled without WebP support. The plugin will s
 
 = Some of my images still load as JPEG/PNG. Why? =
 
-By default the plugin rewrites images that pass through WordPress's normal content and featured-image filters. Images added by a **page builder** (Elementor, Divi, etc.) or printed directly by your theme don't pass through those filters. Turn on **Settings → Image Optimiser → Rewrite images everywhere** to catch them. Note that images set as **CSS backgrounds** cannot use the `<picture>` element and so cannot be converted this way.
+By default the plugin rewrites images that pass through WordPress's normal content and featured-image filters. Images added by a **page builder** (Elementor, Divi, etc.) or printed directly by your theme don't pass through those filters. Turn on **Settings → Image Scout → Rewrite images everywhere** to catch them. Note that images set as **CSS backgrounds** cannot use the `<picture>` element and so cannot be converted this way.
 
 = Some images don't have a WebP version at all =
 
@@ -80,9 +84,14 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 1. Settings page showing your server's image capabilities.
 2. The bulk optimiser compressing the Media Library.
-3. The Optimiser column in the Media Library.
+3. The Image Scout column in the Media Library.
 
 == Changelog ==
+
+= 1.0.5 =
+* Renamed to ITBoffins Image Scout with matching slug and text domain.
+* Strengthened WordPress-safe prefixes for classes, functions, options, AJAX actions, script/style handles, and admin selectors.
+* Improved whole-page WebP mode so its output buffer is explicitly closed during shutdown.
 
 = 1.0.4 =
 * Security hardening: site-wide bulk optimisation and whole-uploads scans now require administrator capability, while single-image actions require permission to edit the selected attachment.
@@ -108,6 +117,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+New distinctive plugin name/slug, stronger prefixes, and explicit output-buffer shutdown handling for whole-page mode.
 
 = 1.0.4 =
 Hardens AJAX permissions and backup storage. Recommended before public directory submission.

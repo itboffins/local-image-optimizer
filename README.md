@@ -1,6 +1,6 @@
-# Local Image Optimiser
+# ITBoffins Image Scout
 
-A free WordPress plugin that compresses your images and serves next-gen **WebP** using only the image tools already on your server (**GD** or **Imagick**).
+A free WordPress plugin that finds images your Media Library misses, compresses JPEG/PNG files, and serves next-gen **WebP** using only the image tools already on your server (**GD** or **Imagick**).
 
 No external API. No account. No shell access required. Works on practically **any WordPress host**, including cheap shared hosting.
 
@@ -8,13 +8,17 @@ No external API. No account. No shell access required. Works on practically **an
 
 ## Why this plugin
 
-Most image-optimisation plugins either send your images to a paid third-party API (with monthly quotas) or shell out to binaries like `cwebp`/`jpegoptim` that are blocked on most shared hosting. This one does neither — it uses WordPress's own `WP_Image_Editor` abstraction, which transparently uses whatever your server has (Imagick or GD).
+Most image-optimisation plugins either send your images to a paid third-party API (with monthly quotas), only process Media Library attachments, or shell out to binaries like `cwebp`/`jpegoptim` that are blocked on most shared hosting. Image Scout does neither: it uses WordPress's own `WP_Image_Editor` abstraction and adds a batched uploads-folder scout for files page builders and themes leave outside the Library.
 
 - 🔒 **Local only** — images never leave your server.
 - 🌍 **Runs anywhere** — no `exec()`, no `.htaccess` requirement.
 - 🪶 **WebP for everyone** — delivered via the standard `<picture>` element, so it works on Apache, Nginx, LiteSpeed and IIS.
-- 🧱 **Page-builder friendly** — optional whole-page mode also converts Elementor/Divi and theme-template images.
+- 🧱 **Uploads scout** — finds page-builder, theme, and imported files that are on disk but not in the Media Library.
 - ↩️ **Reversible** — optional protected backups let you restore originals with one click.
+
+## The Scout workflow
+
+The standout workflow is the uploads-folder scout. It walks /uploads in small AJAX batches, skips the protected backup folders, validates every generated WebP before it can be served, and can optionally pair the result with whole-page delivery for builder/theme images that never pass through WordPress content filters.
 
 ## Features
 
@@ -40,13 +44,13 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 ### From source (this repo)
 
 1. Download or clone this repository.
-2. Copy the `local-image-optimiser` folder into `wp-content/plugins/`.
-3. Activate **Local Image Optimiser** in **Plugins**.
-4. Configure under **Settings → Image Optimiser**; administrators can bulk-process under **Media → Bulk Optimise**.
+2. Copy the `itboffins-image-scout` folder into `wp-content/plugins/`.
+3. Activate **ITBoffins Image Scout** in **Plugins**.
+4. Configure under **Settings → Image Scout**; administrators can bulk-process under **Media → Bulk Optimise**.
 
 ### From the WordPress.org directory
 
-_(Coming soon — search "Local Image Optimiser" in your wp-admin Plugins → Add New screen.)_
+_(Coming soon — search "ITBoffins Image Scout" in your wp-admin Plugins → Add New screen.)_
 
 ## How it works
 
@@ -60,22 +64,22 @@ _(Coming soon — search "Local Image Optimiser" in your wp-admin Plugins → Ad
 This is a plain PHP WordPress plugin — no build step. Coding standard target: [WordPress Coding Standards](https://github.com/WordPress/WordPress-Coding-Standards).
 
 ```
-local-image-optimiser/
-├── local-image-optimiser.php   # bootstrap
+itboffins-image-scout/
+├── itboffins-image-scout.php   # bootstrap
 ├── includes/
-│   ├── class-lio-settings.php       # options + defaults
-│   ├── class-lio-capabilities.php   # runtime server probe
-│   ├── class-lio-optimizer.php      # compress / webp / backup / restore + path-based API
-│   ├── class-lio-scanner.php        # memory-safe recursive /uploads WebP scanner
-│   ├── class-lio-frontend.php       # <picture> delivery (+ whole-page mode)
-│   ├── class-lio-admin.php          # settings + bulk + media column
-│   └── class-lio-ajax.php           # AJAX endpoints
+│   ├── class-itboffins-image-scout-settings.php       # options + defaults
+│   ├── class-itboffins-image-scout-capabilities.php   # runtime server probe
+│   ├── class-itboffins-image-scout-optimizer.php      # compress / webp / backup / restore + path-based API
+│   ├── class-itboffins-image-scout-scanner.php        # memory-safe recursive /uploads WebP scanner
+│   ├── class-itboffins-image-scout-frontend.php       # <picture> delivery (+ whole-page mode)
+│   ├── class-itboffins-image-scout-admin.php          # settings + bulk + media column
+│   └── class-itboffins-image-scout-ajax.php           # AJAX endpoints
 ├── assets/                     # admin.css, admin.js
 ├── readme.txt                  # WordPress.org readme
 └── uninstall.php
 ```
 
-> Note: the WordPress.org slug and text domain use the British spelling `local-image-optimiser`; internal PHP/JS prefixes use `LIO_` and `lio_` for stability.
+> Note: the WordPress.org slug and text domain are `itboffins-image-scout`; internal PHP/JS prefixes use `ITBOFFINS_IMAGE_SCOUT_` and `itboffins_image_scout_` for collision safety.
 
 ## Contributing
 
