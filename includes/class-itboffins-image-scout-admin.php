@@ -156,111 +156,152 @@ class ITBOFFINS_IMAGE_SCOUT_Admin {
 			<?php $this->brand_header(); ?>
 			<h1><?php esc_html_e( 'ITBoffins Image Scout', 'itboffins-image-scout' ); ?></h1>
 
+			<div class="itboffins-image-scout-card itboffins-image-scout-summary">
+				<span class="itboffins-image-scout-eyebrow"><?php esc_html_e( 'Plain-English setup', 'itboffins-image-scout' ); ?></span>
+				<h2><?php esc_html_e( 'What this does for your site', 'itboffins-image-scout' ); ?></h2>
+				<p><?php esc_html_e( 'Image Scout helps keep pages lighter by shrinking photos, creating faster WebP copies when your host allows it, and finding images that page builders or themes may hide from the Media Library.', 'itboffins-image-scout' ); ?></p>
+				<div class="itboffins-image-scout-benefits">
+					<div class="itboffins-image-scout-benefit">
+						<strong><?php esc_html_e( 'Pages feel faster', 'itboffins-image-scout' ); ?></strong>
+						<span><?php esc_html_e( 'Smaller image files mean visitors wait less, especially on mobile.', 'itboffins-image-scout' ); ?></span>
+					</div>
+					<div class="itboffins-image-scout-benefit">
+						<strong><?php esc_html_e( 'No accounts or credits', 'itboffins-image-scout' ); ?></strong>
+						<span><?php esc_html_e( 'Everything happens on your own hosting, so images are not sent to another service.', 'itboffins-image-scout' ); ?></span>
+					</div>
+					<div class="itboffins-image-scout-benefit">
+						<strong><?php esc_html_e( 'Builder images included', 'itboffins-image-scout' ); ?></strong>
+						<span><?php esc_html_e( 'The scout can find upload-folder images used by themes and page builders.', 'itboffins-image-scout' ); ?></span>
+					</div>
+				</div>
+			</div>
+
 			<div class="itboffins-image-scout-card">
-				<h2><?php esc_html_e( 'Your server', 'itboffins-image-scout' ); ?></h2>
+				<h2><?php echo esc_html( $caps['can_compress'] ? __( 'Your site is ready to help with images', 'itboffins-image-scout' ) : __( 'Your host needs one image tool enabled', 'itboffins-image-scout' ) ); ?></h2>
+				<p><?php esc_html_e( 'This quick check shows what your web host can do. You do not need to install anything extra in WordPress.', 'itboffins-image-scout' ); ?></p>
 				<table class="itboffins-image-scout-caps">
 					<tr>
-						<th><?php esc_html_e( 'Active image engine', 'itboffins-image-scout' ); ?></th>
-						<td><strong><?php echo esc_html( $caps['engine'] ); ?></strong></td>
-					</tr>
-					<tr>
-						<th><?php esc_html_e( 'Image compression', 'itboffins-image-scout' ); ?></th>
-						<td><?php echo wp_kses_post( $this->badge( $caps['can_compress'] ) ); ?></td>
-					</tr>
-					<tr>
-						<th><?php esc_html_e( 'WebP conversion', 'itboffins-image-scout' ); ?></th>
+						<th><?php esc_html_e( 'Make images smaller', 'itboffins-image-scout' ); ?></th>
 						<td>
-							<?php echo wp_kses_post( $this->badge( $caps['can_webp'] ) ); ?>
-							<?php if ( ! $caps['can_webp'] ) : ?>
-								<span class="itboffins-image-scout-hint"><?php esc_html_e( 'Your server\'s image library was built without WebP support. Images will still be compressed; WebP files just won\'t be generated.', 'itboffins-image-scout' ); ?></span>
-							<?php endif; ?>
+							<?php echo wp_kses_post( $this->badge( $caps['can_compress'], esc_html__( 'Ready', 'itboffins-image-scout' ), esc_html__( 'Ask host', 'itboffins-image-scout' ) ) ); ?>
+							<span class="itboffins-image-scout-hint"><?php echo esc_html( $caps['can_compress'] ? __( 'Your site can shrink JPEG and PNG uploads.', 'itboffins-image-scout' ) : __( 'Your host needs GD or Imagick enabled before images can be optimised.', 'itboffins-image-scout' ) ); ?></span>
 						</td>
 					</tr>
 					<tr>
-						<th>GD</th>
-						<td><?php echo wp_kses_post( $this->badge( $caps['gd'] ) ); ?> <?php echo $caps['gd'] ? wp_kses_post( $this->badge( $caps['gd_webp'], esc_html__( 'WebP', 'itboffins-image-scout' ) ) ) : ''; ?></td>
+						<th><?php esc_html_e( 'Create WebP copies', 'itboffins-image-scout' ); ?></th>
+						<td>
+							<?php echo wp_kses_post( $this->badge( $caps['can_webp'], esc_html__( 'Ready', 'itboffins-image-scout' ), esc_html__( 'Not on this host', 'itboffins-image-scout' ) ) ); ?>
+							<span class="itboffins-image-scout-hint"><?php echo esc_html( $caps['can_webp'] ? __( 'Your site can make modern WebP versions for browsers that support them.', 'itboffins-image-scout' ) : __( 'Image Scout can still compress images, but WebP copies need WebP support from your host.', 'itboffins-image-scout' ) ); ?></span>
+						</td>
 					</tr>
 					<tr>
-						<th>Imagick</th>
-						<td><?php echo wp_kses_post( $this->badge( $caps['imagick'] ) ); ?> <?php echo $caps['imagick'] ? wp_kses_post( $this->badge( $caps['imagick_webp'], esc_html__( 'WebP', 'itboffins-image-scout' ) ) ) : ''; ?></td>
+						<th><?php esc_html_e( 'Image tool found', 'itboffins-image-scout' ); ?></th>
+						<td><strong><?php echo esc_html( $caps['engine'] ); ?></strong><span class="itboffins-image-scout-hint"><?php esc_html_e( 'This is the built-in server tool WordPress will use behind the scenes.', 'itboffins-image-scout' ); ?></span></td>
 					</tr>
 				</table>
 			</div>
 
-			<form method="post" action="options.php" class="itboffins-image-scout-card">
+			<form method="post" action="options.php" class="itboffins-image-scout-card itboffins-image-scout-settings-card">
 				<?php settings_fields( 'itboffins_image_scout_settings_group' ); ?>
-				<h2><?php esc_html_e( 'Settings', 'itboffins-image-scout' ); ?></h2>
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Optimise new uploads', 'itboffins-image-scout' ); ?></th>
-						<td>
-							<label>
-								<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[auto_optimize]" value="1" <?php checked( $settings['auto_optimize'] ); ?> />
-								<?php esc_html_e( 'Automatically optimise images as they are uploaded', 'itboffins-image-scout' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="itboffins_image_scout_jpeg_quality"><?php esc_html_e( 'JPEG quality', 'itboffins-image-scout' ); ?></label></th>
-						<td>
+				<span class="itboffins-image-scout-eyebrow"><?php esc_html_e( 'Recommended for most sites', 'itboffins-image-scout' ); ?></span>
+				<h2><?php esc_html_e( 'Choose what Image Scout should do', 'itboffins-image-scout' ); ?></h2>
+				<p><?php esc_html_e( 'Leave the defaults on if you want the simplest setup. Each choice below explains the benefit in plain English.', 'itboffins-image-scout' ); ?></p>
+
+				<div class="itboffins-image-scout-setting-list">
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Make every new upload smaller', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( 'Best for most sites. When you add a photo to WordPress, Image Scout shrinks it automatically before it can slow a page down.', 'itboffins-image-scout' ); ?></p>
+						</div>
+						<label class="itboffins-image-scout-toggle">
+							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[auto_optimize]" value="1" <?php checked( $settings['auto_optimize'] ); ?> />
+							<span><?php esc_html_e( 'On for new images', 'itboffins-image-scout' ); ?></span>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Photo quality', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( '82 is a good everyday balance: photos still look sharp, but the files are smaller. Raise it for image-heavy portfolios; lower it when speed matters more than maximum detail.', 'itboffins-image-scout' ); ?></p>
+						</div>
+						<label class="itboffins-image-scout-number" for="itboffins_image_scout_jpeg_quality">
+							<span><?php esc_html_e( 'Quality', 'itboffins-image-scout' ); ?></span>
 							<input type="number" min="40" max="100" id="itboffins_image_scout_jpeg_quality" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[jpeg_quality]" value="<?php echo esc_attr( $settings['jpeg_quality'] ); ?>" class="small-text" />
-							<p class="description"><?php esc_html_e( '40–100. Around 82 is visually lossless for most photos. PNGs are kept lossless.', 'itboffins-image-scout' ); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'WebP', 'itboffins-image-scout' ); ?></th>
-						<td>
-							<label>
-								<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[webp_enabled]" value="1" <?php checked( $settings['webp_enabled'] ); ?> <?php disabled( ! $caps['can_webp'] ); ?> />
-								<?php esc_html_e( 'Generate WebP copies of images', 'itboffins-image-scout' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="itboffins_image_scout_webp_quality"><?php esc_html_e( 'WebP quality', 'itboffins-image-scout' ); ?></label></th>
-						<td>
+							<small><?php esc_html_e( '40 to 100', 'itboffins-image-scout' ); ?></small>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Create faster WebP copies', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( 'WebP is a modern image format that is often much smaller than JPEG or PNG. Image Scout keeps the original and adds a smaller WebP copy where your host supports it.', 'itboffins-image-scout' ); ?></p>
+							<?php if ( ! $caps['can_webp'] ) : ?>
+								<p class="itboffins-image-scout-warning"><?php esc_html_e( 'Your host cannot create WebP images yet, so this is unavailable here. Normal compression still works.', 'itboffins-image-scout' ); ?></p>
+							<?php endif; ?>
+						</div>
+						<label class="itboffins-image-scout-toggle">
+							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[webp_enabled]" value="1" <?php checked( $settings['webp_enabled'] ); ?> <?php disabled( ! $caps['can_webp'] ); ?> />
+							<span><?php esc_html_e( 'Create WebP files', 'itboffins-image-scout' ); ?></span>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'WebP quality', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( '80 is a sensible starting point. Higher values keep more detail but make bigger files; lower values make smaller files.', 'itboffins-image-scout' ); ?></p>
+						</div>
+						<label class="itboffins-image-scout-number" for="itboffins_image_scout_webp_quality">
+							<span><?php esc_html_e( 'Quality', 'itboffins-image-scout' ); ?></span>
 							<input type="number" min="40" max="100" id="itboffins_image_scout_webp_quality" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[webp_quality]" value="<?php echo esc_attr( $settings['webp_quality'] ); ?>" class="small-text" />
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Serve WebP', 'itboffins-image-scout' ); ?></th>
-						<td>
-							<label>
-								<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[serve_webp]" value="1" <?php checked( $settings['serve_webp'] ); ?> />
-								<?php esc_html_e( 'Deliver WebP to supported browsers automatically (via <picture>)', 'itboffins-image-scout' ); ?>
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Rewrite images everywhere', 'itboffins-image-scout' ); ?></th>
-						<td>
-							<label>
-								<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[full_page_webp]" value="1" <?php checked( $settings['full_page_webp'] ); ?> />
-								<?php esc_html_e( 'Rewrite every image on the page, including those added by page builders (Elementor, Divi) and theme templates', 'itboffins-image-scout' ); ?>
-							</label>
-							<p class="description"><?php esc_html_e( 'Recommended if your pages are built with a page builder. Uses whole-page output buffering. Leave off if you only use the block/classic editor. (CSS background images still cannot be converted.)', 'itboffins-image-scout' ); ?></p>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Keep originals', 'itboffins-image-scout' ); ?></th>
-						<td>
-							<label>
-								<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[keep_backup]" value="1" <?php checked( $settings['keep_backup'] ); ?> />
-								<?php esc_html_e( 'Keep an untouched backup of every original so you can restore it later', 'itboffins-image-scout' ); ?>
-							</label>
-							<p class="description">
+							<small><?php esc_html_e( '40 to 100', 'itboffins-image-scout' ); ?></small>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Show the faster version to visitors', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( 'When a visitor\'s browser supports WebP, they get the smaller WebP image automatically. Older browsers still get the normal image.', 'itboffins-image-scout' ); ?></p>
+						</div>
+						<label class="itboffins-image-scout-toggle">
+							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[serve_webp]" value="1" <?php checked( $settings['serve_webp'] ); ?> />
+							<span><?php esc_html_e( 'Use WebP when possible', 'itboffins-image-scout' ); ?></span>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Find images page builders hide from WordPress', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( 'Turn this on if you use Elementor, Divi, a custom theme, or imported pages. It checks the finished page for images that do not pass through the normal WordPress editor.', 'itboffins-image-scout' ); ?></p>
+							<p class="itboffins-image-scout-hint"><?php esc_html_e( 'Leave it off for very simple sites that only use the block editor.', 'itboffins-image-scout' ); ?></p>
+						</div>
+						<label class="itboffins-image-scout-toggle">
+							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[full_page_webp]" value="1" <?php checked( $settings['full_page_webp'] ); ?> />
+							<span><?php esc_html_e( 'Check the whole page', 'itboffins-image-scout' ); ?></span>
+						</label>
+					</div>
+
+					<div class="itboffins-image-scout-setting">
+						<div class="itboffins-image-scout-setting-copy">
+							<h3><?php esc_html_e( 'Keep a restore copy', 'itboffins-image-scout' ); ?></h3>
+							<p><?php esc_html_e( 'This uses more storage, but lets you put an image back exactly as it was before optimisation. Leave it off if saving disk space is more important.', 'itboffins-image-scout' ); ?></p>
+							<p class="itboffins-image-scout-hint">
 								<?php
 								printf(
 									/* translators: %s: backup folder name */
-									esc_html__( 'Backups are off by default for new installs. When enabled, originals are stored in a randomised uploads subfolder (%s) with deny files where supported.', 'itboffins-image-scout' ),
+									esc_html__( 'Restore copies are stored in a protected uploads folder named %s.', 'itboffins-image-scout' ),
 									esc_html( $settings['backup_dir'] )
 								);
 								?>
 							</p>
-						</td>
-					</tr>
-				</table>
-				<?php submit_button(); ?>
+						</div>
+						<label class="itboffins-image-scout-toggle">
+							<input type="checkbox" name="<?php echo esc_attr( ITBOFFINS_IMAGE_SCOUT_OPTION ); ?>[keep_backup]" value="1" <?php checked( $settings['keep_backup'] ); ?> />
+							<span><?php esc_html_e( 'Keep originals', 'itboffins-image-scout' ); ?></span>
+						</label>
+					</div>
+				</div>
+
+				<?php submit_button( __( 'Save Image Scout settings', 'itboffins-image-scout' ) ); ?>
 			</form>
 
 			<div class="itboffins-image-scout-card itboffins-image-scout-promo">
@@ -422,16 +463,17 @@ class ITBOFFINS_IMAGE_SCOUT_Admin {
 	/**
 	 * Render a small yes/no badge.
 	 *
-	 * @param bool   $ok    Condition.
-	 * @param string $label Optional label override.
+	 * @param bool   $ok             Condition.
+	 * @param string $label          Optional positive label override.
+	 * @param string $negative_label Optional negative label override.
 	 * @return string
 	 */
-	private function badge( $ok, $label = '' ) {
+	private function badge( $ok, $label = '', $negative_label = '' ) {
 		if ( $ok ) {
-			$text = $label ? $label : __( 'Available', 'itboffins-image-scout' );
+			$text = $label ? $label : __( 'Ready', 'itboffins-image-scout' );
 			return '<span class="itboffins-image-scout-badge itboffins-image-scout-badge-yes">' . esc_html( $text ) . '</span>';
 		}
-		$text = $label ? $label : __( 'Not available', 'itboffins-image-scout' );
+		$text = $negative_label ? $negative_label : __( 'Not available', 'itboffins-image-scout' );
 		return '<span class="itboffins-image-scout-badge itboffins-image-scout-badge-no">' . esc_html( $text ) . '</span>';
 	}
 }

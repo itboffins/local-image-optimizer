@@ -4,7 +4,7 @@ Tags: image optimisation, webp, page builder, privacy, media library
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 == Changelog ==
 
+= 1.0.6 =
+* Reworked the settings page with plain-English benefits, clearer recommendations, and friendlier host readiness messages.
+
 = 1.0.5 =
 * Renamed to ITBoffins Image Scout with matching slug and text domain.
 * Strengthened WordPress-safe prefixes for classes, functions, options, AJAX actions, script/style handles, and admin selectors.
@@ -117,6 +120,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+Settings are easier for non-technical site owners to understand, with each option explaining the practical benefit.
 
 = 1.0.5 =
 New distinctive plugin name/slug, stronger prefixes, and explicit output-buffer shutdown handling for whole-page mode.
