@@ -2,7 +2,7 @@
 Contributors: itboffins
 Tags: image optimisation, compress images, webp, performance, page speed
 Requires at least: 5.8
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.2
 Stable tag: 1.0.4
 License: GPLv2 or later
@@ -41,7 +41,7 @@ This plugin does not send your images or any data to any external service. All p
 
 == Installation ==
 
-1. Upload the `local-image-optimizer` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
+1. Upload the `local-image-optimiser` folder to `/wp-content/plugins/`, or install it through the **Plugins → Add New** screen.
 2. Activate the plugin.
 3. Go to **Settings → Image Optimiser** to review your server's capabilities and adjust quality settings.
 4. New uploads are optimised automatically. Administrators can compress existing images under **Media → Bulk Optimise**.

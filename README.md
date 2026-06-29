@@ -40,7 +40,7 @@ Most image-optimisation plugins either send your images to a paid third-party AP
 ### From source (this repo)
 
 1. Download or clone this repository.
-2. Copy the `local-image-optimizer` folder into `wp-content/plugins/`.
+2. Copy the `local-image-optimiser` folder into `wp-content/plugins/`.
 3. Activate **Local Image Optimiser** in **Plugins**.
 4. Configure under **Settings → Image Optimiser**; administrators can bulk-process under **Media → Bulk Optimise**.
 
@@ -60,8 +60,8 @@ _(Coming soon — search "Local Image Optimiser" in your wp-admin Plugins → Ad
 This is a plain PHP WordPress plugin — no build step. Coding standard target: [WordPress Coding Standards](https://github.com/WordPress/WordPress-Coding-Standards).
 
 ```
-local-image-optimizer/
-├── local-image-optimizer.php   # bootstrap
+local-image-optimiser/
+├── local-image-optimiser.php   # bootstrap
 ├── includes/
 │   ├── class-lio-settings.php       # options + defaults
 │   ├── class-lio-capabilities.php   # runtime server probe
@@ -75,7 +75,7 @@ local-image-optimizer/
 └── uninstall.php
 ```
 
-> Note: code identifiers (the `local-image-optimizer` slug, text domain, file names, function/hook names) use the US spelling "optimizer" for technical stability; the user-facing interface uses British English ("optimiser").
+> Note: the WordPress.org slug and text domain use the British spelling `local-image-optimiser`; internal PHP/JS prefixes use `LIO_` and `lio_` for stability.
 
 ## Contributing
 

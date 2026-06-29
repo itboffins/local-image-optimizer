@@ -51,8 +51,8 @@ class LIO_Admin {
 	 * @return array
 	 */
 	public function action_links( $links ) {
-		$settings = '<a href="' . esc_url( admin_url( 'options-general.php?page=local-image-optimizer' ) ) . '">' . esc_html__( 'Settings', 'local-image-optimizer' ) . '</a>';
-		$bulk     = '<a href="' . esc_url( admin_url( 'upload.php?page=lio-bulk' ) ) . '">' . esc_html__( 'Bulk Optimise', 'local-image-optimizer' ) . '</a>';
+		$settings = '<a href="' . esc_url( admin_url( 'options-general.php?page=local-image-optimiser' ) ) . '">' . esc_html__( 'Settings', 'local-image-optimiser' ) . '</a>';
+		$bulk     = '<a href="' . esc_url( admin_url( 'upload.php?page=lio-bulk' ) ) . '">' . esc_html__( 'Bulk Optimise', 'local-image-optimiser' ) . '</a>';
 		array_unshift( $links, $settings, $bulk );
 		return $links;
 	}
@@ -62,16 +62,16 @@ class LIO_Admin {
 	 */
 	public function register_menus() {
 		add_options_page(
-			__( 'Local Image Optimiser', 'local-image-optimizer' ),
-			__( 'Image Optimiser', 'local-image-optimizer' ),
+			__( 'Local Image Optimiser', 'local-image-optimiser' ),
+			__( 'Image Optimiser', 'local-image-optimiser' ),
 			'manage_options',
-			'local-image-optimizer',
+			'local-image-optimiser',
 			array( $this, 'render_settings_page' )
 		);
 
 		add_media_page(
-			__( 'Bulk Image Optimiser', 'local-image-optimizer' ),
-			__( 'Bulk Optimise', 'local-image-optimizer' ),
+			__( 'Bulk Image Optimiser', 'local-image-optimiser' ),
+			__( 'Bulk Optimise', 'local-image-optimiser' ),
 			'manage_options',
 			'lio-bulk',
 			array( $this, 'render_bulk_page' )
@@ -99,7 +99,7 @@ class LIO_Admin {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue( $hook ) {
-		$screens = array( 'settings_page_local-image-optimizer', 'media_page_lio-bulk', 'upload.php' );
+		$screens = array( 'settings_page_local-image-optimiser', 'media_page_lio-bulk', 'upload.php' );
 		if ( ! in_array( $hook, $screens, true ) ) {
 			return;
 		}
@@ -117,26 +117,26 @@ class LIO_Admin {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'lio_ajax' ),
 				'i18n'    => array(
-					'optimising'     => __( 'Optimising…', 'local-image-optimizer' ),
-					'restoring'      => __( 'Restoring…', 'local-image-optimizer' ),
-					'optimised'      => __( 'Optimised', 'local-image-optimizer' ),
-					'restored'       => __( 'Restored original', 'local-image-optimizer' ),
-					'failed'         => __( 'Failed', 'local-image-optimizer' ),
-					'done'           => __( 'All done!', 'local-image-optimizer' ),
-					'fetching'       => __( 'Fetching image list…', 'local-image-optimizer' ),
+					'optimising'     => __( 'Optimising…', 'local-image-optimiser' ),
+					'restoring'      => __( 'Restoring…', 'local-image-optimiser' ),
+					'optimised'      => __( 'Optimised', 'local-image-optimiser' ),
+					'restored'       => __( 'Restored original', 'local-image-optimiser' ),
+					'failed'         => __( 'Failed', 'local-image-optimiser' ),
+					'done'           => __( 'All done!', 'local-image-optimiser' ),
+					'fetching'       => __( 'Fetching image list…', 'local-image-optimiser' ),
 					/* translators: %d: Number of images found. */
-					'found'          => __( 'Found %d images.', 'local-image-optimizer' ),
-					'saved'          => __( 'saved', 'local-image-optimizer' ),
-					'webpCreated'    => __( 'WebP created', 'local-image-optimizer' ),
-					'noImages'       => __( 'No images found to optimise.', 'local-image-optimizer' ),
-					'confirmRestore' => __( 'Restore the original, un-optimised image? This will undo the compression for this item.', 'local-image-optimizer' ),
-					'scanning'       => __( 'Scanning…', 'local-image-optimizer' ),
-					'scanDone'       => __( 'Scan complete.', 'local-image-optimizer' ),
-					'scanFailed'     => __( 'Scan stopped after repeated errors.', 'local-image-optimizer' ),
-					'scanned'        => __( 'scanned', 'local-image-optimizer' ),
-					'createdWord'    => __( 'WebP created', 'local-image-optimizer' ),
-					'skippedWord'    => __( 'skipped', 'local-image-optimizer' ),
-					'recompressedWord' => __( 'recompressed', 'local-image-optimizer' ),
+					'found'          => __( 'Found %d images.', 'local-image-optimiser' ),
+					'saved'          => __( 'saved', 'local-image-optimiser' ),
+					'webpCreated'    => __( 'WebP created', 'local-image-optimiser' ),
+					'noImages'       => __( 'No images found to optimise.', 'local-image-optimiser' ),
+					'confirmRestore' => __( 'Restore the original, un-optimised image? This will undo the compression for this item.', 'local-image-optimiser' ),
+					'scanning'       => __( 'Scanning…', 'local-image-optimiser' ),
+					'scanDone'       => __( 'Scan complete.', 'local-image-optimiser' ),
+					'scanFailed'     => __( 'Scan stopped after repeated errors.', 'local-image-optimiser' ),
+					'scanned'        => __( 'scanned', 'local-image-optimiser' ),
+					'createdWord'    => __( 'WebP created', 'local-image-optimiser' ),
+					'skippedWord'    => __( 'skipped', 'local-image-optimiser' ),
+					'recompressedWord' => __( 'recompressed', 'local-image-optimiser' ),
 				),
 			)
 		);
@@ -154,105 +154,105 @@ class LIO_Admin {
 		?>
 		<div class="wrap lio-wrap">
 			<?php $this->brand_header(); ?>
-			<h1><?php esc_html_e( 'Local Image Optimiser', 'local-image-optimizer' ); ?></h1>
+			<h1><?php esc_html_e( 'Local Image Optimiser', 'local-image-optimiser' ); ?></h1>
 
 			<div class="lio-card">
-				<h2><?php esc_html_e( 'Your server', 'local-image-optimizer' ); ?></h2>
+				<h2><?php esc_html_e( 'Your server', 'local-image-optimiser' ); ?></h2>
 				<table class="lio-caps">
 					<tr>
-						<th><?php esc_html_e( 'Active image engine', 'local-image-optimizer' ); ?></th>
+						<th><?php esc_html_e( 'Active image engine', 'local-image-optimiser' ); ?></th>
 						<td><strong><?php echo esc_html( $caps['engine'] ); ?></strong></td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e( 'Image compression', 'local-image-optimizer' ); ?></th>
+						<th><?php esc_html_e( 'Image compression', 'local-image-optimiser' ); ?></th>
 						<td><?php echo wp_kses_post( $this->badge( $caps['can_compress'] ) ); ?></td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e( 'WebP conversion', 'local-image-optimizer' ); ?></th>
+						<th><?php esc_html_e( 'WebP conversion', 'local-image-optimiser' ); ?></th>
 						<td>
 							<?php echo wp_kses_post( $this->badge( $caps['can_webp'] ) ); ?>
 							<?php if ( ! $caps['can_webp'] ) : ?>
-								<span class="lio-hint"><?php esc_html_e( 'Your server\'s image library was built without WebP support. Images will still be compressed; WebP files just won\'t be generated.', 'local-image-optimizer' ); ?></span>
+								<span class="lio-hint"><?php esc_html_e( 'Your server\'s image library was built without WebP support. Images will still be compressed; WebP files just won\'t be generated.', 'local-image-optimiser' ); ?></span>
 							<?php endif; ?>
 						</td>
 					</tr>
 					<tr>
 						<th>GD</th>
-						<td><?php echo wp_kses_post( $this->badge( $caps['gd'] ) ); ?> <?php echo $caps['gd'] ? wp_kses_post( $this->badge( $caps['gd_webp'], esc_html__( 'WebP', 'local-image-optimizer' ) ) ) : ''; ?></td>
+						<td><?php echo wp_kses_post( $this->badge( $caps['gd'] ) ); ?> <?php echo $caps['gd'] ? wp_kses_post( $this->badge( $caps['gd_webp'], esc_html__( 'WebP', 'local-image-optimiser' ) ) ) : ''; ?></td>
 					</tr>
 					<tr>
 						<th>Imagick</th>
-						<td><?php echo wp_kses_post( $this->badge( $caps['imagick'] ) ); ?> <?php echo $caps['imagick'] ? wp_kses_post( $this->badge( $caps['imagick_webp'], esc_html__( 'WebP', 'local-image-optimizer' ) ) ) : ''; ?></td>
+						<td><?php echo wp_kses_post( $this->badge( $caps['imagick'] ) ); ?> <?php echo $caps['imagick'] ? wp_kses_post( $this->badge( $caps['imagick_webp'], esc_html__( 'WebP', 'local-image-optimiser' ) ) ) : ''; ?></td>
 					</tr>
 				</table>
 			</div>
 
 			<form method="post" action="options.php" class="lio-card">
 				<?php settings_fields( 'lio_settings_group' ); ?>
-				<h2><?php esc_html_e( 'Settings', 'local-image-optimizer' ); ?></h2>
+				<h2><?php esc_html_e( 'Settings', 'local-image-optimiser' ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Optimise new uploads', 'local-image-optimizer' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Optimise new uploads', 'local-image-optimiser' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[auto_optimize]" value="1" <?php checked( $settings['auto_optimize'] ); ?> />
-								<?php esc_html_e( 'Automatically optimise images as they are uploaded', 'local-image-optimizer' ); ?>
+								<?php esc_html_e( 'Automatically optimise images as they are uploaded', 'local-image-optimiser' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="lio_jpeg_quality"><?php esc_html_e( 'JPEG quality', 'local-image-optimizer' ); ?></label></th>
+						<th scope="row"><label for="lio_jpeg_quality"><?php esc_html_e( 'JPEG quality', 'local-image-optimiser' ); ?></label></th>
 						<td>
 							<input type="number" min="40" max="100" id="lio_jpeg_quality" name="<?php echo esc_attr( LIO_OPTION ); ?>[jpeg_quality]" value="<?php echo esc_attr( $settings['jpeg_quality'] ); ?>" class="small-text" />
-							<p class="description"><?php esc_html_e( '40–100. Around 82 is visually lossless for most photos. PNGs are kept lossless.', 'local-image-optimizer' ); ?></p>
+							<p class="description"><?php esc_html_e( '40–100. Around 82 is visually lossless for most photos. PNGs are kept lossless.', 'local-image-optimiser' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'WebP', 'local-image-optimizer' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'WebP', 'local-image-optimiser' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[webp_enabled]" value="1" <?php checked( $settings['webp_enabled'] ); ?> <?php disabled( ! $caps['can_webp'] ); ?> />
-								<?php esc_html_e( 'Generate WebP copies of images', 'local-image-optimizer' ); ?>
+								<?php esc_html_e( 'Generate WebP copies of images', 'local-image-optimiser' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="lio_webp_quality"><?php esc_html_e( 'WebP quality', 'local-image-optimizer' ); ?></label></th>
+						<th scope="row"><label for="lio_webp_quality"><?php esc_html_e( 'WebP quality', 'local-image-optimiser' ); ?></label></th>
 						<td>
 							<input type="number" min="40" max="100" id="lio_webp_quality" name="<?php echo esc_attr( LIO_OPTION ); ?>[webp_quality]" value="<?php echo esc_attr( $settings['webp_quality'] ); ?>" class="small-text" />
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Serve WebP', 'local-image-optimizer' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Serve WebP', 'local-image-optimiser' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[serve_webp]" value="1" <?php checked( $settings['serve_webp'] ); ?> />
-								<?php esc_html_e( 'Deliver WebP to supported browsers automatically (via <picture>)', 'local-image-optimizer' ); ?>
+								<?php esc_html_e( 'Deliver WebP to supported browsers automatically (via <picture>)', 'local-image-optimiser' ); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Rewrite images everywhere', 'local-image-optimizer' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Rewrite images everywhere', 'local-image-optimiser' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[full_page_webp]" value="1" <?php checked( $settings['full_page_webp'] ); ?> />
-								<?php esc_html_e( 'Rewrite every image on the page, including those added by page builders (Elementor, Divi) and theme templates', 'local-image-optimizer' ); ?>
+								<?php esc_html_e( 'Rewrite every image on the page, including those added by page builders (Elementor, Divi) and theme templates', 'local-image-optimiser' ); ?>
 							</label>
-							<p class="description"><?php esc_html_e( 'Recommended if your pages are built with a page builder. Uses whole-page output buffering. Leave off if you only use the block/classic editor. (CSS background images still cannot be converted.)', 'local-image-optimizer' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Recommended if your pages are built with a page builder. Uses whole-page output buffering. Leave off if you only use the block/classic editor. (CSS background images still cannot be converted.)', 'local-image-optimiser' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Keep originals', 'local-image-optimizer' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Keep originals', 'local-image-optimiser' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="<?php echo esc_attr( LIO_OPTION ); ?>[keep_backup]" value="1" <?php checked( $settings['keep_backup'] ); ?> />
-								<?php esc_html_e( 'Keep an untouched backup of every original so you can restore it later', 'local-image-optimizer' ); ?>
+								<?php esc_html_e( 'Keep an untouched backup of every original so you can restore it later', 'local-image-optimiser' ); ?>
 							</label>
 							<p class="description">
 								<?php
 								printf(
 									/* translators: %s: backup folder name */
-									esc_html__( 'Backups are off by default for new installs. When enabled, originals are stored in a randomised uploads subfolder (%s) with deny files where supported.', 'local-image-optimizer' ),
+									esc_html__( 'Backups are off by default for new installs. When enabled, originals are stored in a randomised uploads subfolder (%s) with deny files where supported.', 'local-image-optimiser' ),
 									esc_html( $settings['backup_dir'] )
 								);
 								?>
@@ -268,8 +268,8 @@ class LIO_Admin {
 					<?php
 					printf(
 						/* translators: %s: link to bulk optimiser */
-						esc_html__( 'Already have images in your library? Run the %s to compress them all.', 'local-image-optimizer' ),
-						'<a href="' . esc_url( admin_url( 'upload.php?page=lio-bulk' ) ) . '">' . esc_html__( 'Bulk Optimiser', 'local-image-optimizer' ) . '</a>'
+						esc_html__( 'Already have images in your library? Run the %s to compress them all.', 'local-image-optimiser' ),
+						'<a href="' . esc_url( admin_url( 'upload.php?page=lio-bulk' ) ) . '">' . esc_html__( 'Bulk Optimiser', 'local-image-optimiser' ) . '</a>'
 					);
 					?>
 				</p>
@@ -277,7 +277,7 @@ class LIO_Admin {
 					<?php
 					printf(
 						/* translators: %s: link to itboffins.com */
-						esc_html__( 'More free plugins at %s', 'local-image-optimizer' ),
+						esc_html__( 'More free plugins at %s', 'local-image-optimiser' ),
 						'<a href="https://itboffins.com/" target="_blank" rel="noopener">itboffins.com</a>'
 					);
 					?>
@@ -298,17 +298,17 @@ class LIO_Admin {
 		?>
 		<div class="wrap lio-wrap">
 			<?php $this->brand_header(); ?>
-			<h1><?php esc_html_e( 'Bulk Image Optimiser', 'local-image-optimizer' ); ?></h1>
+			<h1><?php esc_html_e( 'Bulk Image Optimiser', 'local-image-optimiser' ); ?></h1>
 
 			<?php if ( ! $caps['can_compress'] ) : ?>
-				<div class="notice notice-error"><p><?php esc_html_e( 'No usable image library (GD or Imagick) was detected on this server, so images cannot be optimised here.', 'local-image-optimizer' ); ?></p></div>
+				<div class="notice notice-error"><p><?php esc_html_e( 'No usable image library (GD or Imagick) was detected on this server, so images cannot be optimised here.', 'local-image-optimiser' ); ?></p></div>
 			<?php else : ?>
 				<div class="lio-card">
-					<p><?php esc_html_e( 'This will compress every JPEG and PNG in your Media Library and, where supported, generate WebP copies. You can keep using your site while it runs.', 'local-image-optimizer' ); ?></p>
+					<p><?php esc_html_e( 'This will compress every JPEG and PNG in your Media Library and, where supported, generate WebP copies. You can keep using your site while it runs.', 'local-image-optimiser' ); ?></p>
 
 					<p>
-						<button type="button" class="button button-primary button-hero" id="lio-bulk-start"><?php esc_html_e( 'Start optimising', 'local-image-optimizer' ); ?></button>
-						<button type="button" class="button" id="lio-bulk-stop" style="display:none;"><?php esc_html_e( 'Stop', 'local-image-optimizer' ); ?></button>
+						<button type="button" class="button button-primary button-hero" id="lio-bulk-start"><?php esc_html_e( 'Start optimising', 'local-image-optimiser' ); ?></button>
+						<button type="button" class="button" id="lio-bulk-stop" style="display:none;"><?php esc_html_e( 'Stop', 'local-image-optimiser' ); ?></button>
 					</p>
 
 					<div id="lio-progress" class="lio-progress" style="display:none;">
@@ -322,20 +322,20 @@ class LIO_Admin {
 				</div>
 
 				<div class="lio-card">
-					<span class="lio-eyebrow"><?php esc_html_e( 'Advanced', 'local-image-optimizer' ); ?></span>
-					<h2><?php esc_html_e( 'Scan entire uploads folder', 'local-image-optimizer' ); ?></h2>
-					<p><?php esc_html_e( 'Generates WebP for every JPEG and PNG in your uploads folder — including images added by page builders (Elementor, Divi) or your theme that are not in the Media Library. Files that already have an up-to-date WebP are skipped.', 'local-image-optimizer' ); ?></p>
+					<span class="lio-eyebrow"><?php esc_html_e( 'Advanced', 'local-image-optimiser' ); ?></span>
+					<h2><?php esc_html_e( 'Scan entire uploads folder', 'local-image-optimiser' ); ?></h2>
+					<p><?php esc_html_e( 'Generates WebP for every JPEG and PNG in your uploads folder — including images added by page builders (Elementor, Divi) or your theme that are not in the Media Library. Files that already have an up-to-date WebP are skipped.', 'local-image-optimiser' ); ?></p>
 
 					<p>
 						<label>
 							<input type="checkbox" id="lio-scan-recompress" />
-							<?php esc_html_e( 'Also recompress the original JPEGs while scanning', 'local-image-optimizer' ); ?>
+							<?php esc_html_e( 'Also recompress the original JPEGs while scanning', 'local-image-optimiser' ); ?>
 						</label>
 					</p>
 
 					<p>
-						<button type="button" class="button button-primary button-hero" id="lio-scan-start"><?php esc_html_e( 'Scan uploads folder', 'local-image-optimizer' ); ?></button>
-						<button type="button" class="button" id="lio-scan-stop" style="display:none;"><?php esc_html_e( 'Stop', 'local-image-optimizer' ); ?></button>
+						<button type="button" class="button button-primary button-hero" id="lio-scan-start"><?php esc_html_e( 'Scan uploads folder', 'local-image-optimiser' ); ?></button>
+						<button type="button" class="button" id="lio-scan-stop" style="display:none;"><?php esc_html_e( 'Stop', 'local-image-optimiser' ); ?></button>
 					</p>
 
 					<div id="lio-scan-progress" class="lio-progress" style="display:none;">
@@ -359,7 +359,7 @@ class LIO_Admin {
 	 * @return array
 	 */
 	public function media_column( $cols ) {
-		$cols['lio'] = __( 'Optimiser', 'local-image-optimizer' );
+		$cols['lio'] = __( 'Optimiser', 'local-image-optimiser' );
 		return $cols;
 	}
 
@@ -386,15 +386,15 @@ class LIO_Admin {
 		if ( is_array( $stats ) && ! empty( $stats['optimized'] ) ) {
 			printf(
 				'<span class="lio-status lio-ok">%s</span><br><small>%s · %s</small>',
-				esc_html__( 'Optimised', 'local-image-optimizer' ),
-				esc_html( sprintf( /* translators: %s percent saved */ __( '%s%% smaller', 'local-image-optimizer' ), $stats['percent'] ) ),
+				esc_html__( 'Optimised', 'local-image-optimiser' ),
+				esc_html( sprintf( /* translators: %s percent saved */ __( '%s%% smaller', 'local-image-optimiser' ), $stats['percent'] ) ),
 				esc_html( size_format( $stats['saved'] ) )
 			);
 			if ( $this->optimizer->has_backup( $post_id ) ) {
-				echo '<br><button type="button" class="button-link lio-restore-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Restore original', 'local-image-optimizer' ) . '</button>';
+				echo '<br><button type="button" class="button-link lio-restore-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Restore original', 'local-image-optimiser' ) . '</button>';
 			}
 		} else {
-			echo '<button type="button" class="button button-small lio-optimize-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Optimise', 'local-image-optimizer' ) . '</button>';
+			echo '<button type="button" class="button button-small lio-optimize-btn" data-id="' . esc_attr( $post_id ) . '">' . esc_html__( 'Optimise', 'local-image-optimiser' ) . '</button>';
 		}
 
 		echo '<span class="lio-msg"></span>';
@@ -414,7 +414,7 @@ class LIO_Admin {
 				?>
 			</span>
 			<span class="lio-brandbar-side">
-				<span class="lio-eyebrow"><?php esc_html_e( 'Free plugin', 'local-image-optimizer' ); ?></span>
+				<span class="lio-eyebrow"><?php esc_html_e( 'Free plugin', 'local-image-optimiser' ); ?></span>
 				<span class="lio-ver">v<?php echo esc_html( LIO_VERSION ); ?></span>
 			</span>
 		</div>
@@ -450,10 +450,10 @@ class LIO_Admin {
 	 */
 	private function badge( $ok, $label = '' ) {
 		if ( $ok ) {
-			$text = $label ? $label : __( 'Available', 'local-image-optimizer' );
+			$text = $label ? $label : __( 'Available', 'local-image-optimiser' );
 			return '<span class="lio-badge lio-badge-yes">' . esc_html( $text ) . '</span>';
 		}
-		$text = $label ? $label : __( 'Not available', 'local-image-optimizer' );
+		$text = $label ? $label : __( 'Not available', 'local-image-optimiser' );
 		return '<span class="lio-badge lio-badge-no">' . esc_html( $text ) . '</span>';
 	}
 }

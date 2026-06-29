@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Local Image Optimiser
- * Plugin URI:        https://itboffins.com/plugins/local-image-optimizer/
+ * Plugin URI:        https://itboffins.com/plugins/local-image-optimiser/
  * Description:       Compress your images and serve next-gen WebP using only the image tools already on your server (GD or Imagick). No external API, no account, no shell access required — works on any WordPress host.
  * Version:           1.0.4
  * Requires at least: 5.8
@@ -10,7 +10,7 @@
  * Author URI:        https://itboffins.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       local-image-optimizer
+ * Text Domain:       local-image-optimiser
  * Domain Path:       /languages
  *
  * @package Local_Image_Optimizer
