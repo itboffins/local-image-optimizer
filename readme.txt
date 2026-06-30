@@ -99,7 +99,7 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Reworked the settings page with plain-English benefits, clearer recommendations, and friendlier host readiness messages.
 
 = 1.0.5 =
-* Renamed to ITBoffins Image Scout with matching slug and text domain.
+* Renamed the public display name to ITBoffins Image Scout and prepared the requested slug for WordPress.org review.
 * Strengthened WordPress-safe prefixes for classes, functions, options, AJAX actions, script/style handles, and admin selectors.
 * Added a safer review-ready WebP delivery path without persistent front-end response rewriting.
 
