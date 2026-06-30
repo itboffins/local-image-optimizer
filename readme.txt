@@ -4,7 +4,7 @@ Tags: image optimisation, webp, page builder, privacy, media library
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 
 == Changelog ==
 
+= 1.0.8 =
+* Adjusted WordPress.org review metadata for the resubmission package.
+
 = 1.0.7 =
 * Removed the full-response rewrite mode to align with WordPress.org review guidance while keeping the uploads-folder scout workflow.
 * Updated settings and readme copy so hidden builder/theme images are handled through the uploads-folder scan.
@@ -124,6 +127,9 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 * Initial release: compress on upload, bulk optimiser, WebP generation, automatic `<picture>` delivery, originals backup & restore.
 
 == Upgrade Notice ==
+
+= 1.0.8 =
+Adjusts review metadata for resubmission while retaining the ITBoffins Image Scout branding and prefixes.
 
 = 1.0.7 =
 Removes the full-response rewrite mode flagged during WordPress.org review; use the uploads-folder scanner for hidden builder/theme images.

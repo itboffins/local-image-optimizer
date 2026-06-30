@@ -3,14 +3,14 @@
  * Plugin Name:       ITBoffins Image Scout
  * Plugin URI:        https://itboffins.com/plugins/itboffins-image-scout/
  * Description:       Find images your Media Library misses, then compress JPEG/PNG and create WebP locally for Media Library, page-builder, and theme images. No external API, account, or shell access.
- * Version:           1.0.7
+ * Version:           1.0.8
  * Requires at least: 5.8
  * Requires PHP:      7.2
  * Author:            IT Boffins
  * Author URI:        https://itboffins.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       itboffins-image-scout
+ * Text Domain:       local-image-optimiser
  * Domain Path:       /languages
  *
  * @package ITBoffins_Image_Scout
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ITBOFFINS_IMAGE_SCOUT_VERSION', '1.0.7' );
+define( 'ITBOFFINS_IMAGE_SCOUT_VERSION', '1.0.8' );
 define( 'ITBOFFINS_IMAGE_SCOUT_FILE', __FILE__ );
 define( 'ITBOFFINS_IMAGE_SCOUT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ITBOFFINS_IMAGE_SCOUT_URL', plugin_dir_url( __FILE__ ) );

@@ -62,7 +62,7 @@ class ITBOFFINS_IMAGE_SCOUT_Capabilities {
 		$can_webp     = (bool) wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) );
 
 		// Work out which implementation WordPress prefers, for display only.
-		$engine = __( 'None available', 'itboffins-image-scout' );
+		$engine = __( 'None available', 'local-image-optimiser' );
 		$chosen = function_exists( '_wp_image_editor_choose' ) ? _wp_image_editor_choose() : false;
 		if ( 'WP_Image_Editor_Imagick' === $chosen ) {
 			$engine = 'Imagick';

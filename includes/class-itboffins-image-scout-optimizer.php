@@ -61,15 +61,15 @@ class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 	public function optimize_attachment( $attachment_id, $metadata = null ) {
 		$caps = ITBOFFINS_IMAGE_SCOUT_Capabilities::get();
 		if ( ! $caps['can_compress'] ) {
-			return new WP_Error( 'itboffins_image_scout_no_editor', __( 'No usable image library (GD or Imagick) was found on this server.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_no_editor', __( 'No usable image library (GD or Imagick) was found on this server.', 'local-image-optimiser' ) );
 		}
 		if ( ! $this->is_supported_attachment( $attachment_id ) ) {
-			return new WP_Error( 'itboffins_image_scout_unsupported', __( 'This attachment is not a supported image type.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_unsupported', __( 'This attachment is not a supported image type.', 'local-image-optimiser' ) );
 		}
 
 		$main_file = get_attached_file( $attachment_id );
 		if ( ! $main_file || ! file_exists( $main_file ) ) {
-			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found on disk.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found on disk.', 'local-image-optimiser' ) );
 		}
 
 		// Back up the canonical original once, before we ever rewrite it.
@@ -127,7 +127,7 @@ class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 	public function restore_attachment( $attachment_id ) {
 		$main_file = get_attached_file( $attachment_id );
 		if ( ! $main_file ) {
-			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'The image file could not be found.', 'local-image-optimiser' ) );
 		}
 
 		$backup = $this->backup_path( $main_file );
@@ -135,7 +135,7 @@ class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 			$backup = $this->backup_path( $main_file, ITBOFFINS_IMAGE_SCOUT_BACKUP_DIR );
 		}
 		if ( ! $backup || ! file_exists( $backup ) ) {
-			return new WP_Error( 'itboffins_image_scout_no_backup', __( 'No backup of the original is available to restore.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_no_backup', __( 'No backup of the original is available to restore.', 'local-image-optimiser' ) );
 		}
 
 		// Remove WebP siblings for every current file.
@@ -593,22 +593,22 @@ class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 	public function webpify_path( $file, $webp_quality = null ) {
 		$caps = ITBOFFINS_IMAGE_SCOUT_Capabilities::get();
 		if ( ! $caps['can_webp'] || ! ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_enabled' ) ) {
-			return new WP_Error( 'itboffins_image_scout_no_webp', __( 'WebP generation is unavailable or disabled.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_no_webp', __( 'WebP generation is unavailable or disabled.', 'local-image-optimiser' ) );
 		}
 
 		$real = realpath( $file );
 		if ( false === $real ) {
-			return new WP_Error( 'itboffins_image_scout_missing', __( 'File not found.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_missing', __( 'File not found.', 'local-image-optimiser' ) );
 		}
 		if ( ! $this->is_under_uploads( $real ) ) {
-			return new WP_Error( 'itboffins_image_scout_outside', __( 'File is outside the uploads directory.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_outside', __( 'File is outside the uploads directory.', 'local-image-optimiser' ) );
 		}
 		$skip = $this->should_skip_path( $real );
 		if ( false !== $skip ) {
 			return new WP_Error( 'itboffins_image_scout_skipped', $skip );
 		}
 		if ( ! $this->is_valid_image( $real, array( IMAGETYPE_JPEG, IMAGETYPE_PNG ) ) ) {
-			return new WP_Error( 'itboffins_image_scout_unreadable', __( 'File is not a readable JPEG or PNG.', 'itboffins-image-scout' ) );
+			return new WP_Error( 'itboffins_image_scout_unreadable', __( 'File is not a readable JPEG or PNG.', 'local-image-optimiser' ) );
 		}
 
 		$quality = ( null === $webp_quality ) ? (int) ITBOFFINS_IMAGE_SCOUT_Settings::get( 'webp_quality' ) : (int) $webp_quality;
@@ -616,7 +616,7 @@ class ITBOFFINS_IMAGE_SCOUT_Optimizer {
 		if ( $this->make_webp( $real, $quality ) ) {
 			return true;
 		}
-		return new WP_Error( 'itboffins_image_scout_encode_failed', __( 'No smaller, valid WebP could be created for this file.', 'itboffins-image-scout' ) );
+		return new WP_Error( 'itboffins_image_scout_encode_failed', __( 'No smaller, valid WebP could be created for this file.', 'local-image-optimiser' ) );
 	}
 
 	/**
