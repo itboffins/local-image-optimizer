@@ -89,7 +89,7 @@ PNGs are kept lossless (true lossy PNG compression requires external tools that 
 == Changelog ==
 
 = 1.0.8 =
-* Adjusted WordPress.org review metadata for the resubmission package.
+* Aligned WordPress.org release metadata with the approved ITBoffins Image Scout listing.
 
 = 1.0.7 =
 * Removed the full-response rewrite mode to align with WordPress.org review guidance while keeping the uploads-folder scout workflow.

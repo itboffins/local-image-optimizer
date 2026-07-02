@@ -79,7 +79,7 @@ itboffins-image-scout/
 └── uninstall.php
 ```
 
-> Review note: the submitted display name is `ITBoffins Image Scout`. Until WordPress.org reserves the requested `itboffins-image-scout` slug, the review package keeps the current pending text domain `local-image-optimiser` so automated old-slug checks pass. Internal PHP/JS prefixes use `ITBOFFINS_IMAGE_SCOUT_` and `itboffins_image_scout_` for collision safety.
+The WordPress.org plugin slug and text domain are `itboffins-image-scout`. Internal PHP/JS prefixes use `ITBOFFINS_IMAGE_SCOUT_` and `itboffins_image_scout_` for collision safety.
 
 ## Contributing
 
